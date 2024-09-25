@@ -50,7 +50,7 @@ module el2_lsu_dccm_mem_wrapper
   logic [pt.DCCM_NUM_BANKS-1:0][             pt.DCCM_FDATA_WIDTH-1:0] dccm_wr_fdata_bank;
   logic [pt.DCCM_NUM_BANKS-1:0][             pt.DCCM_FDATA_WIDTH-1:0] dccm_bank_fdout;
 
-  el2_mem_if mem_export ();
+  css_mcu0_el2_mem_if mem_export ();
   assign dccm_clken                = mem_export.dccm_clken;
   assign dccm_wren_bank            = mem_export.dccm_wren_bank;
   assign dccm_addr_bank            = mem_export.dccm_addr_bank;

@@ -79,9 +79,9 @@ input                   s1_bvalid,
 output                  s1_bready
 );
 
-parameter ICCM_BASE = `RV_ICCM_BITS; // in LSBs
-localparam IDFIFOSZ = $clog2(`RV_DMA_BUF_DEPTH);
-bit[31:0] iccm_real_base_addr = `RV_ICCM_SADR ;
+parameter ICCM_BASE = `css_mcu0_RV_ICCM_BITS; // in LSBs
+localparam IDFIFOSZ = $clog2(`css_mcu0_RV_DMA_BUF_DEPTH);
+bit[31:0] iccm_real_base_addr = `css_mcu0_RV_ICCM_SADR ;
 
 wire ar_slave_select;
 wire aw_slave_select;

@@ -33,7 +33,7 @@ module tbench_top #(
       reset
   );
 
-  el2_mem_if mem_export ();
+  css_mcu0_el2_mem_if mem_export ();
 
   localparam DCCM_INDEX_DEPTH = ((pt.DCCM_SIZE)*1024)/((pt.DCCM_BYTE_WIDTH)*(pt.DCCM_NUM_BANKS));  // Depth of memory bank
   logic [pt.DCCM_NUM_BANKS-1:0][pt.DCCM_FDATA_WIDTH-1:0] dccm_wr_fdata_bank;

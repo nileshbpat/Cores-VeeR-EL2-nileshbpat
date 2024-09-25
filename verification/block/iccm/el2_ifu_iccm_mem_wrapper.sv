@@ -46,7 +46,7 @@ module el2_ifu_iccm_mem_wrapper
   logic [pt.ICCM_NUM_BANKS-1:0][                                38:0] iccm_bank_wr_fdata;
   logic [pt.ICCM_NUM_BANKS-1:0][                                38:0] iccm_bank_fdout;
 
-  el2_mem_if mem_export ();
+  css_mcu0_el2_mem_if mem_export ();
   assign iccm_clken                = mem_export.iccm_clken;
   assign iccm_wren_bank            = mem_export.iccm_wren_bank;
   assign iccm_addr_bank            = mem_export.iccm_addr_bank;

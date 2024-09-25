@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tcp_server.h"
+// #include "tcp_server.h"
 
 // Uncomment to enable JTAG DPI debugging. The code will print vertically
 // oriented waveform for all JTAG signals.

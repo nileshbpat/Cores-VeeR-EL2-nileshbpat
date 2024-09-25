@@ -42,7 +42,7 @@ $(BUILD_PATH)/cross.txt: | $(BUILD_PATH)
 $(INSTALL_PATH)/picolibc.specs: $(BUILD_PATH)/cross.txt | $(BUILD_PATH)
 
 	cd $(PICOLIBC_PATH) && meson $(BUILD_PATH) \
-		-Dmultilib=true \
+		-Dmultilib=false \
 		-Dmultilib-list=rv32imac/ilp32 \
 		-Dpicocrt=false \
 		-Datomic-ungetc=false \

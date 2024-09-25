@@ -142,9 +142,9 @@ TBFILES = $(TBDIR)/tb_top_pkg.sv \
           $(TBDIR)/jtagdpi/jtagdpi.sv \
           $(TBDIR)/ahb_lite_2to1_mux.sv
 
-defines  = $(BUILD_DIR)/common_defines.vh
+defines  = $(BUILD_DIR)/css_mcu0_common_defines.vh
 defines += ${RV_ROOT}/design/include/el2_def.sv
-defines += $(BUILD_DIR)/el2_pdef.vh
+defines += $(BUILD_DIR)/css_mcu0_el2_pdef.vh
 includes = -I${BUILD_DIR} -I$(TBDIR)/axi4_mux
 
 # Verilator supports only C++14 and newer
@@ -180,12 +180,12 @@ verilator-build: ${TBFILES} ${BUILD_DIR}/defines.h $(TB_VERILATOR_SRCS)
 	$(MAKE) -e -C obj_dir/ -f Vtb_top.mk $(VERILATOR_MAKE_FLAGS)
 	touch verilator-build
 
-vcs-build: ${TBFILES} ${BUILD_DIR}/defines.h
+vcs-build: ${TBFILES} ${BUILD_DIR}/defines.h $(TB_DPI_SRCS)
 	$(VCS) -full64 -assert svaext -sverilog +define+RV_OPENSOURCE $(ASSERT_DEFINES) \
 	  +error+500 +incdir+${RV_ROOT}/design/lib \
-	  +incdir+${RV_ROOT}/design/include ${BUILD_DIR}/common_defines.vh \
+	  +incdir+${RV_ROOT}/design/include ${BUILD_DIR}/css_mcu0_common_defines.vh \
 	  +incdir+$(BUILD_DIR)  +libext+.v $(defines) \
-	  -f ${RV_ROOT}/testbench/flist ${TBFILES} -l vcs.log
+	  -f ${RV_ROOT}/testbench/flist ${TBFILES} ${TB_DPI_SRCS} -l vcs.log
 	touch vcs-build
 
 irun-build: ${TBFILES} ${BUILD_DIR}/defines.h

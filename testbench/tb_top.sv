@@ -19,7 +19,7 @@
 module tb_top
     import tb_top_pkg::*;
 #(
-    `include "el2_param.vh"
+    `include "css_mcu0_el2_param.vh"
 );
 `else
 module tb_top
@@ -211,13 +211,13 @@ module tb_top
    assign lsu_hready = mux_hreadyout;
    `endif
 
-`ifdef RV_BUILD_AXI4
+`ifdef css_mcu0_RV_BUILD_AXI4
    //-------------------------- LSU AXI signals--------------------------
    // AXI Write Channels
-   parameter int                RV_MUX_BUS_TAG = (`RV_LSU_BUS_TAG > `RV_SB_BUS_TAG ? `RV_LSU_BUS_TAG : `RV_SB_BUS_TAG) + 1;
+   parameter int                RV_MUX_BUS_TAG = (`css_mcu0_RV_LSU_BUS_TAG > `css_mcu0_RV_SB_BUS_TAG ? `css_mcu0_RV_LSU_BUS_TAG : `css_mcu0_RV_SB_BUS_TAG) + 1;
     wire                        lsu_axi_awvalid;
     wire                        lsu_axi_awready;
-    wire [`RV_LSU_BUS_TAG-1:0]  lsu_axi_awid;
+    wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_awid;
     wire [31:0]                 lsu_axi_awaddr;
     wire [3:0]                  lsu_axi_awregion;
     wire [7:0]                  lsu_axi_awlen;
@@ -237,12 +237,12 @@ module tb_top
     wire                        lsu_axi_bvalid;
     wire                        lsu_axi_bready;
     wire [1:0]                  lsu_axi_bresp;
-    wire [`RV_LSU_BUS_TAG-1:0]  lsu_axi_bid;
+    wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_bid;
 
     // AXI Read Channels
     wire                        lsu_axi_arvalid;
     wire                        lsu_axi_arready;
-    wire [`RV_LSU_BUS_TAG-1:0]  lsu_axi_arid;
+    wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_arid;
     wire [31:0]                 lsu_axi_araddr;
     wire [3:0]                  lsu_axi_arregion;
     wire [7:0]                  lsu_axi_arlen;
@@ -255,7 +255,7 @@ module tb_top
 
     wire                        lsu_axi_rvalid;
     wire                        lsu_axi_rready;
-    wire [`RV_LSU_BUS_TAG-1:0]  lsu_axi_rid;
+    wire [`css_mcu0_RV_LSU_BUS_TAG-1:0]  lsu_axi_rid;
     wire [63:0]                 lsu_axi_rdata;
     wire [1:0]                  lsu_axi_rresp;
     wire                        lsu_axi_rlast;
@@ -269,7 +269,7 @@ module tb_top
     // AXI Write Channels
     wire                        ifu_axi_awvalid;
     wire                        ifu_axi_awready;
-    wire [`RV_IFU_BUS_TAG-1:0]  ifu_axi_awid;
+    wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_awid;
     wire [31:0]                 ifu_axi_awaddr;
     wire [3:0]                  ifu_axi_awregion;
     wire [7:0]                  ifu_axi_awlen;
@@ -289,12 +289,12 @@ module tb_top
     wire                        ifu_axi_bvalid;
     wire                        ifu_axi_bready;
     wire [1:0]                  ifu_axi_bresp;
-    wire [`RV_IFU_BUS_TAG-1:0]  ifu_axi_bid;
+    wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_bid;
 
     // AXI Read Channels
     wire                        ifu_axi_arvalid;
     wire                        ifu_axi_arready;
-    wire [`RV_IFU_BUS_TAG-1:0]  ifu_axi_arid;
+    wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_arid;
     wire [31:0]                 ifu_axi_araddr;
     wire [3:0]                  ifu_axi_arregion;
     wire [7:0]                  ifu_axi_arlen;
@@ -307,7 +307,7 @@ module tb_top
 
     wire                        ifu_axi_rvalid;
     wire                        ifu_axi_rready;
-    wire [`RV_IFU_BUS_TAG-1:0]  ifu_axi_rid;
+    wire [`css_mcu0_RV_IFU_BUS_TAG-1:0]  ifu_axi_rid;
     wire [63:0]                 ifu_axi_rdata;
     wire [1:0]                  ifu_axi_rresp;
     wire                        ifu_axi_rlast;
@@ -316,7 +316,7 @@ module tb_top
     // AXI Write Channels
     wire                        sb_axi_awvalid;
     wire                        sb_axi_awready;
-    wire [`RV_SB_BUS_TAG-1:0]   sb_axi_awid;
+    wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_awid;
     wire [31:0]                 sb_axi_awaddr;
     wire [3:0]                  sb_axi_awregion;
     wire [7:0]                  sb_axi_awlen;
@@ -336,12 +336,12 @@ module tb_top
     wire                        sb_axi_bvalid;
     wire                        sb_axi_bready;
     wire [1:0]                  sb_axi_bresp;
-    wire [`RV_SB_BUS_TAG-1:0]   sb_axi_bid;
+    wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_bid;
 
     // AXI Read Channels
     wire                        sb_axi_arvalid;
     wire                        sb_axi_arready;
-    wire [`RV_SB_BUS_TAG-1:0]   sb_axi_arid;
+    wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_arid;
     wire [31:0]                 sb_axi_araddr;
     wire [3:0]                  sb_axi_arregion;
     wire [7:0]                  sb_axi_arlen;
@@ -354,7 +354,7 @@ module tb_top
 
     wire                        sb_axi_rvalid;
     wire                        sb_axi_rready;
-    wire [`RV_SB_BUS_TAG-1:0]   sb_axi_rid;
+    wire [`css_mcu0_RV_SB_BUS_TAG-1:0]   sb_axi_rid;
     wire [63:0]                 sb_axi_rdata;
     wire [1:0]                  sb_axi_rresp;
     wire                        sb_axi_rlast;
@@ -368,7 +368,7 @@ module tb_top
    // AXI Write Channels
     wire                        dma_axi_awvalid;
     wire                        dma_axi_awready;
-    wire [`RV_DMA_BUS_TAG-1:0]  dma_axi_awid;
+    wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_awid;
     wire [31:0]                 dma_axi_awaddr;
     wire [2:0]                  dma_axi_awsize;
     wire [2:0]                  dma_axi_awprot;
@@ -385,12 +385,12 @@ module tb_top
     wire                        dma_axi_bvalid;
     wire                        dma_axi_bready;
     wire [1:0]                  dma_axi_bresp;
-    wire [`RV_DMA_BUS_TAG-1:0]  dma_axi_bid;
+    wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_bid;
 
     // AXI Read Channels
     wire                        dma_axi_arvalid;
     wire                        dma_axi_arready;
-    wire [`RV_DMA_BUS_TAG-1:0]  dma_axi_arid;
+    wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_arid;
     wire [31:0]                 dma_axi_araddr;
     wire [2:0]                  dma_axi_arsize;
     wire [2:0]                  dma_axi_arprot;
@@ -399,7 +399,7 @@ module tb_top
 
     wire                        dma_axi_rvalid;
     wire                        dma_axi_rready;
-    wire [`RV_DMA_BUS_TAG-1:0]  dma_axi_rid;
+    wire [`css_mcu0_RV_DMA_BUS_TAG-1:0]  dma_axi_rid;
     wire [63:0]                 dma_axi_rdata;
     wire [1:0]                  dma_axi_rresp;
     wire                        dma_axi_rlast;
@@ -680,7 +680,7 @@ module tb_top
 
 `endif
     string                      abi_reg[32]; // ABI register names
-    el2_mem_if el2_mem_export ();
+    css_mcu0_el2_mem_if el2_mem_export();
 
     logic [pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_wr_fdata;
     logic [pt.ICCM_NUM_BANKS-1:0][                   38:0] iccm_bank_fdout;
@@ -691,7 +691,7 @@ module tb_top
 
 `define DEC rvtop_wrapper.rvtop.veer.dec
 
-`ifdef RV_BUILD_AXI4
+`ifdef css_mcu0_RV_BUILD_AXI4
     assign mailbox_write    = lmem.awvalid && lmem.awaddr == mem_mailbox && rst_l;
     assign mailbox_data     = lmem.wdata;
 `endif
@@ -869,7 +869,7 @@ module tb_top
         jtag_id[31:28] = 4'b1;
         jtag_id[27:12] = '0;
         jtag_id[11:1]  = 11'h45;
-        reset_vector = `RV_RESET_VEC;
+        reset_vector = `css_mcu0_RV_RESET_VEC;
         nmi_vector   = 32'hee000000;
 
         $readmemh("program.hex",  lmem.mem);
@@ -967,7 +967,7 @@ veer_wrapper rvtop_wrapper (
     .dma_hreadyin           ( dma_hready_out  ),
     .dma_hreadyout          ( dma_hready_out  ),
 `endif
-`ifdef RV_BUILD_AXI4
+`ifdef css_mcu0_RV_BUILD_AXI4
     //-------------------------- LSU AXI signals--------------------------
     // AXI Write Channels
     .lsu_axi_awvalid        (lsu_axi_awvalid),
@@ -1279,8 +1279,8 @@ ahb_sif lmem (
 );
 
 `endif
-`ifdef RV_BUILD_AXI4
-axi_slv #(.TAGW(`RV_IFU_BUS_TAG)) imem(
+`ifdef css_mcu0_RV_BUILD_AXI4
+axi_slv #(.TAGW(`css_mcu0_RV_IFU_BUS_TAG)) imem(
     .aclk(core_clk),
     .rst_l(rst_l),
     .arvalid(ifu_axi_arvalid),
@@ -1319,7 +1319,7 @@ axi_slv #(.TAGW(`RV_IFU_BUS_TAG)) imem(
 
 defparam lmem.TAGW = RV_MUX_BUS_TAG;
 
-//axi_slv #(.TAGW(`RV_LSU_BUS_TAG)) lmem(
+//axi_slv #(.TAGW(`css_mcu0_RV_LSU_BUS_TAG)) lmem(
 axi_slv  lmem(
     .aclk(core_clk),
     .rst_l(rst_l),
@@ -1445,7 +1445,7 @@ init_iccm();
 `endif
 addr = 'hffff_fff0;
 saddr = {lmem.mem[addr+3],lmem.mem[addr+2],lmem.mem[addr+1],lmem.mem[addr]};
-if ( (saddr < `RV_ICCM_SADR) || (saddr > `RV_ICCM_EADR)) return;
+if ( (saddr < `css_mcu0_RV_ICCM_SADR) || (saddr > `css_mcu0_RV_ICCM_EADR)) return;
 `ifndef RV_ICCM_ENABLE
     $display("********************************************************");
     $display("ICCM preload: there is no ICCM in VeeR, terminating !!!");
@@ -1476,7 +1476,7 @@ addresses:
 
 addr = 'hffff_fff8;
 saddr = {lmem.mem[addr+3],lmem.mem[addr+2],lmem.mem[addr+1],lmem.mem[addr]};
-if (saddr < `RV_DCCM_SADR || saddr > `RV_DCCM_EADR) return;
+if (saddr < `css_mcu0_RV_DCCM_SADR || saddr > `css_mcu0_RV_DCCM_EADR) return;
 `ifndef RV_DCCM_ENABLE
     $display("********************************************************");
     $display("DCCM preload: there is no DCCM in VeeR, terminating !!!");
@@ -1613,29 +1613,29 @@ endfunction
 
 function int get_dccm_bank(input[31:0] addr,  output int bank_idx);
 `ifdef RV_DCCM_NUM_BANKS_2
-    bank_idx = int'(addr[`RV_DCCM_BITS-1:3]);
+    bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:3]);
     return int'( addr[2]);
 `elsif RV_DCCM_NUM_BANKS_4
-    bank_idx = int'(addr[`RV_DCCM_BITS-1:4]);
+    bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:4]);
     return int'(addr[3:2]);
 `elsif RV_DCCM_NUM_BANKS_8
-    bank_idx = int'(addr[`RV_DCCM_BITS-1:5]);
+    bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:5]);
     return int'( addr[4:2]);
 `endif
 endfunction
 
 function int get_iccm_bank(input[31:0] addr,  output int bank_idx);
 `ifdef RV_DCCM_NUM_BANKS_2
-    bank_idx = int'(addr[`RV_DCCM_BITS-1:3]);
+    bank_idx = int'(addr[`css_mcu0_RV_DCCM_BITS-1:3]);
     return int'( addr[2]);
 `elsif RV_ICCM_NUM_BANKS_4
-    bank_idx = int'(addr[`RV_ICCM_BITS-1:4]);
+    bank_idx = int'(addr[`css_mcu0_RV_ICCM_BITS-1:4]);
     return int'(addr[3:2]);
 `elsif RV_ICCM_NUM_BANKS_8
-    bank_idx = int'(addr[`RV_ICCM_BITS-1:5]);
+    bank_idx = int'(addr[`css_mcu0_RV_ICCM_BITS-1:5]);
     return int'( addr[4:2]);
 `elsif RV_ICCM_NUM_BANKS_16
-    bank_idx = int'(addr[`RV_ICCM_BITS-1:6]);
+    bank_idx = int'(addr[`css_mcu0_RV_ICCM_BITS-1:6]);
     return int'( addr[5:2]);
 `endif
 endfunction
@@ -1653,7 +1653,7 @@ task dump_signature ();
 
         // From DCCM
 `ifdef RV_DCCM_ENABLE
-        if (i >= `RV_DCCM_SADR && i < `RV_DCCM_EADR) begin
+        if (i >= `css_mcu0_RV_DCCM_SADR && i < `css_mcu0_RV_DCCM_EADR) begin
             bit[38:0] data;
             int bank, indx;
             bank = get_dccm_bank(i, indx);
@@ -1725,7 +1725,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
         assign el2_mem_export.dccm_bank_ecc[i] = dccm_bank_fdout[i][38:32];
 
         if (DCCM_INDEX_DEPTH == 32768) begin : dccm
-            ram_32768x39  dccm_bank (
+            css_mcu0_ram_32768x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1740,7 +1740,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 16384) begin : dccm
-            ram_16384x39  dccm_bank (
+            css_mcu0_ram_16384x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1755,7 +1755,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 8192) begin : dccm
-            ram_8192x39  dccm_bank (
+            css_mcu0_ram_8192x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1770,7 +1770,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 4096) begin : dccm
-            ram_4096x39  dccm_bank (
+            css_mcu0_ram_4096x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1785,7 +1785,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 3072) begin : dccm
-            ram_3072x39  dccm_bank (
+            css_mcu0_ram_3072x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1800,7 +1800,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 2048) begin : dccm
-            ram_2048x39  dccm_bank (
+            css_mcu0_ram_2048x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1815,7 +1815,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 1024) begin : dccm
-            ram_1024x39  dccm_bank (
+            css_mcu0_ram_1024x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1830,7 +1830,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 512) begin : dccm
-            ram_512x39  dccm_bank (
+            css_mcu0_ram_512x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1845,7 +1845,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 256) begin : dccm
-            ram_256x39  dccm_bank (
+            css_mcu0_ram_256x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1860,7 +1860,7 @@ if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
                                     );
         end
         else if (DCCM_INDEX_DEPTH == 128) begin : dccm
-            ram_128x39  dccm_bank (
+            css_mcu0_ram_128x39  dccm_bank (
                                     // Primary ports
                                     .ME(el2_mem_export.dccm_clken[i]),
                                     .CLK(el2_mem_export.clk),
@@ -1899,7 +1899,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
     assign el2_mem_export.iccm_bank_ecc[i] = iccm_bank_fdout[i][32+pt.ICCM_ECC_WIDTH-1:32];
 
      if (pt.ICCM_INDEX_BITS == 6 ) begin : iccm
-               ram_64x39 iccm_bank (
+               css_mcu0_ram_64x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -1923,7 +1923,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
      end // block: iccm
 
    else if (pt.ICCM_INDEX_BITS == 7 ) begin : iccm
-               ram_128x39 iccm_bank (
+               css_mcu0_ram_128x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -1947,7 +1947,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
      end // block: iccm
 
      else if (pt.ICCM_INDEX_BITS == 8 ) begin : iccm
-               ram_256x39 iccm_bank (
+               css_mcu0_ram_256x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -1970,7 +1970,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                       );
      end // block: iccm
      else if (pt.ICCM_INDEX_BITS == 9 ) begin : iccm
-               ram_512x39 iccm_bank (
+               css_mcu0_ram_512x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -1993,7 +1993,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                       );
      end // block: iccm
      else if (pt.ICCM_INDEX_BITS == 10 ) begin : iccm
-               ram_1024x39 iccm_bank (
+               css_mcu0_ram_1024x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -2016,7 +2016,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                       );
      end // block: iccm
      else if (pt.ICCM_INDEX_BITS == 11 ) begin : iccm
-               ram_2048x39 iccm_bank (
+               css_mcu0_ram_2048x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -2039,7 +2039,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                       );
      end // block: iccm
      else if (pt.ICCM_INDEX_BITS == 12 ) begin : iccm
-               ram_4096x39 iccm_bank (
+               css_mcu0_ram_4096x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -2062,7 +2062,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                       );
      end // block: iccm
      else if (pt.ICCM_INDEX_BITS == 13 ) begin : iccm
-               ram_8192x39 iccm_bank (
+               css_mcu0_ram_8192x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -2085,7 +2085,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                       );
      end // block: iccm
      else if (pt.ICCM_INDEX_BITS == 14 ) begin : iccm
-               ram_16384x39 iccm_bank (
+               css_mcu0_ram_16384x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),
@@ -2108,7 +2108,7 @@ for (genvar i=0; i<pt.ICCM_NUM_BANKS; i++) begin: iccm_loop
                                       );
      end // block: iccm
      else begin : iccm
-               ram_32768x39 iccm_bank (
+               css_mcu0_ram_32768x39 iccm_bank (
                                      // Primary ports
                                      .CLK(el2_mem_export.clk),
                                      .ME(el2_mem_export.iccm_clken[i]),

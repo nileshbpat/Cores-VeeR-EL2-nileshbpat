@@ -16,9 +16,9 @@
 //********************************************************************************
 
 module veer_wrapper
-  import el2_pkg::*;
+  import css_mcu0_el2_pkg::*;
 #(
-    `include "el2_param.vh"
+    `include "css_mcu0_el2_param.vh"
 ) (
     input logic        clk,
     input logic        rst_l,
@@ -38,7 +38,7 @@ module veer_wrapper
     output logic [31:0] trace_rv_i_tval_ip,
 
     // Bus signals
-`ifdef RV_BUILD_AXI4
+`ifdef css_mcu0_RV_BUILD_AXI4
     //-------------------------- LSU AXI signals--------------------------
     // AXI Write Channels
     output logic                      lsu_axi_awvalid,
@@ -359,7 +359,7 @@ module veer_wrapper
     input  logic [31:0] dmi_uncore_rdata
 );
 
-  el2_mem_if mem_export ();
+  css_mcu0_el2_mem_if mem_export();
   assign mem_clk                   = mem_export.clk;
   assign dccm_clken                = mem_export.dccm_clken;
   assign dccm_wren_bank            = mem_export.dccm_wren_bank;
@@ -376,7 +376,7 @@ module veer_wrapper
   assign mem_export.iccm_bank_dout = iccm_bank_dout;
   assign mem_export.iccm_bank_ecc  = iccm_bank_ecc;
 
-  el2_veer_wrapper rvtop (
+  css_mcu0_el2_veer_wrapper rvtop (
       .el2_mem_export(mem_export.veer_sram_src),
       .*
   );
