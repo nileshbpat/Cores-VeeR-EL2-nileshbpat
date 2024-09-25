@@ -24,10 +24,10 @@
 //  FA  C       8       4       0
 //********************************************************************************
 
-module el2_ifu_bp_ctl
-import el2_pkg::*;
+module css_mcu0_el2_ifu_bp_ctl
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
 
@@ -222,11 +222,11 @@ import el2_pkg::*;
    // ----------------------------------------------------------------------
 
    // hash the incoming fetch PC, first guess at hashing algorithm
-   el2_btb_addr_hash #(.pt(pt)) f1hash(.pc(ifc_fetch_addr_f[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]), .hash(btb_rd_addr_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
+   css_mcu0_el2_btb_addr_hash #(.pt(pt)) f1hash(.pc(ifc_fetch_addr_f[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]), .hash(btb_rd_addr_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
 
 
    assign fetch_addr_p1_f[31:2] = ifc_fetch_addr_f[31:2] + 30'b1;
-   el2_btb_addr_hash #(.pt(pt)) f1hash_p1(.pc(fetch_addr_p1_f[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]), .hash(btb_rd_addr_p1_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
+   css_mcu0_el2_btb_addr_hash #(.pt(pt)) f1hash_p1(.pc(fetch_addr_p1_f[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]), .hash(btb_rd_addr_p1_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
 
    assign btb_sel_f[1] = ~bht_dir_f[0];
    assign btb_sel_f[0] =  bht_dir_f[0];
@@ -351,7 +351,7 @@ logic exu_flush_final_d1;
                                                ({2{fetch_start_f[1]}} & {tag_match_way1_expanded_p1_f[0], tag_match_way1_expanded_f[1]}) );
 
 
-   rvdffe #(LRU_SIZE) btb_lru_ff (.*, .en(ifc_fetch_req_f | exu_mp_valid),
+   css_mcu0_rvdffe #(LRU_SIZE) btb_lru_ff (.*, .en(ifc_fetch_req_f | exu_mp_valid),
                                     .din(btb_lru_b0_ns[(LRU_SIZE)-1:0]),
                                    .dout(btb_lru_b0_f[(LRU_SIZE)-1:0]));
 
@@ -464,7 +464,7 @@ logic exu_flush_final_d1;
                                          ({pt.BHT_GHR_SIZE{~exu_flush_final_d1 & ifc_fetch_req_f & ic_hit_f & ~leak_one_f_d1}} & merged_ghr[pt.BHT_GHR_SIZE-1:0]) |
                                          ({pt.BHT_GHR_SIZE{~exu_flush_final_d1 & ~(ifc_fetch_req_f & ic_hit_f & ~leak_one_f_d1)}} & fghr[pt.BHT_GHR_SIZE-1:0]));
 
-   rvdffie #(.WIDTH(pt.BHT_GHR_SIZE+3),.OVERRIDE(1)) fetchghr (.*,
+   css_mcu0_rvdffie #(.WIDTH(pt.BHT_GHR_SIZE+3),.OVERRIDE(1)) fetchghr (.*,
                                           .din ({exu_flush_final, exu_mp_way, leak_one_f, fghr_ns[pt.BHT_GHR_SIZE-1:0]}),
                                           .dout({exu_flush_final_d1, exu_mp_way_f, leak_one_f_d1, fghr[pt.BHT_GHR_SIZE-1:0]}));
 
@@ -513,7 +513,7 @@ assign use_fa_plus = (~bht_dir_f[0] & ~fetch_start_f[0] & ~btb_rd_pc4_f);
    assign bp_total_branch_offset_f =  bloc_f[1] ^ btb_rd_pc4_f;
 
    logic [31:2] adder_pc_in_f, ifc_fetch_adder_prior;
-   rvdfflie #(.WIDTH(30), .LEFT(19)) faddrf_ff (.*, .en(ifc_fetch_req_f & ~ifu_bp_hit_taken_f & ic_hit_f), .din(ifc_fetch_addr_f[31:2]), .dout(ifc_fetch_adder_prior[31:2]));
+   css_mcu0_rvdfflie #(.WIDTH(30), .LEFT(19)) faddrf_ff (.*, .en(ifc_fetch_req_f & ~ifu_bp_hit_taken_f & ic_hit_f), .din(ifc_fetch_addr_f[31:2]), .dout(ifc_fetch_adder_prior[31:2]));
 
 
    assign ifu_bp_poffset_f[11:0] = btb_rd_tgt_f[11:0];
@@ -522,7 +522,7 @@ assign use_fa_plus = (~bht_dir_f[0] & ~fetch_start_f[0] & ~btb_rd_pc4_f);
                                    ({30{ btb_fg_crossing_f}} & ifc_fetch_adder_prior[31:2]) |
                                    ({30{~btb_fg_crossing_f & ~use_fa_plus}} & ifc_fetch_addr_f[31:2]));
 
-   rvbradder predtgt_addr (.pc({adder_pc_in_f[31:2], bp_total_branch_offset_f}),
+   css_mcu0_rvbradder predtgt_addr (.pc({adder_pc_in_f[31:2], bp_total_branch_offset_f}),
                          .offset(btb_rd_tgt_f[11:0]),
                          .dout(bp_btb_target_adder_f[31:1])
                          );
@@ -535,7 +535,7 @@ assign use_fa_plus = (~bht_dir_f[0] & ~fetch_start_f[0] & ~btb_rd_pc4_f);
    // Return Stack
    // ----------------------------------------------------------------------
 
-   rvbradder rs_addr (.pc({adder_pc_in_f[31:2], bp_total_branch_offset_f}),
+   css_mcu0_rvbradder rs_addr (.pc({adder_pc_in_f[31:2], bp_total_branch_offset_f}),
                     .offset({11'b0,  ~btb_rd_pc4_f}),
                     .dout(bp_rs_call_target_f[31:1])
                          );
@@ -564,7 +564,7 @@ assign use_fa_plus = (~bht_dir_f[0] & ~fetch_start_f[0] & ~btb_rd_pc4_f);
                                     ({32{rs_pop}}  & rets_out[i+1][31:0]) );
          assign rsenable[i] = rs_push | rs_pop;
       end
-      rvdffe #(32) rets_ff (.*, .en(rsenable[i]), .din(rets_in[i][31:0]), .dout(rets_out[i][31:0]));
+      css_mcu0_rvdffe #(32) rets_ff (.*, .en(rsenable[i]), .din(rets_in[i][31:0]), .dout(rets_out[i][31:0]));
 
    end : retstack
 
@@ -586,15 +586,15 @@ assign use_fa_plus = (~bht_dir_f[0] & ~fetch_start_f[0] & ~btb_rd_pc4_f);
    if(!pt.BTB_FULLYA) begin
 
       if(pt.BTB_BTAG_FOLD) begin : btbfold
-         el2_btb_tag_hash_fold #(.pt(pt)) rdtagf  (.hash(fetch_rd_tag_f[pt.BTB_BTAG_SIZE-1:0]),
+         css_mcu0_el2_btb_tag_hash_fold #(.pt(pt)) rdtagf  (.hash(fetch_rd_tag_f[pt.BTB_BTAG_SIZE-1:0]),
                                                     .pc({ifc_fetch_addr_f[pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]}));
-         el2_btb_tag_hash_fold #(.pt(pt)) rdtagp1f(.hash(fetch_rd_tag_p1_f[pt.BTB_BTAG_SIZE-1:0]),
+         css_mcu0_el2_btb_tag_hash_fold #(.pt(pt)) rdtagp1f(.hash(fetch_rd_tag_p1_f[pt.BTB_BTAG_SIZE-1:0]),
                                                     .pc({fetch_addr_p1_f[ pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]}));
       end
       else begin : btbfold
-         el2_btb_tag_hash #(.pt(pt)) rdtagf(.hash(fetch_rd_tag_f[pt.BTB_BTAG_SIZE-1:0]),
+         css_mcu0_el2_btb_tag_hash #(.pt(pt)) rdtagf(.hash(fetch_rd_tag_f[pt.BTB_BTAG_SIZE-1:0]),
                                              .pc({ifc_fetch_addr_f[pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]}));
-         el2_btb_tag_hash #(.pt(pt)) rdtagp1f(.hash(fetch_rd_tag_p1_f[pt.BTB_BTAG_SIZE-1:0]),
+         css_mcu0_el2_btb_tag_hash #(.pt(pt)) rdtagp1f(.hash(fetch_rd_tag_p1_f[pt.BTB_BTAG_SIZE-1:0]),
                                                .pc({fetch_addr_p1_f[pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]}));
       end
 
@@ -631,10 +631,10 @@ assign use_fa_plus = (~bht_dir_f[0] & ~fetch_start_f[0] & ~btb_rd_pc4_f);
    logic [pt.BHT_ADDR_HI:pt.BHT_ADDR_LO] bht_rd_addr_f, bht_rd_addr_p1_f, bht_wr_addr0, bht_wr_addr2;
 
    logic [pt.BHT_ADDR_HI:pt.BHT_ADDR_LO] mp_hashed, br0_hashed_wb, bht_rd_addr_hashed_f, bht_rd_addr_hashed_p1_f;
-   el2_btb_ghr_hash #(.pt(pt)) mpghrhs  (.hashin(exu_mp_addr[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(exu_mp_eghr[pt.BHT_GHR_SIZE-1:0]), .hash(mp_hashed[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
-   el2_btb_ghr_hash #(.pt(pt)) br0ghrhs (.hashin(dec_tlu_br0_addr_wb[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(exu_i0_br_fghr_wb[pt.BHT_GHR_SIZE-1:0]), .hash(br0_hashed_wb[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
-   el2_btb_ghr_hash #(.pt(pt)) fghrhs (.hashin(btb_rd_addr_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(fghr[pt.BHT_GHR_SIZE-1:0]), .hash(bht_rd_addr_hashed_f[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
-   el2_btb_ghr_hash #(.pt(pt)) fghrhs_p1 (.hashin(btb_rd_addr_p1_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(fghr[pt.BHT_GHR_SIZE-1:0]), .hash(bht_rd_addr_hashed_p1_f[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
+   css_mcu0_el2_btb_ghr_hash #(.pt(pt)) mpghrhs  (.hashin(exu_mp_addr[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(exu_mp_eghr[pt.BHT_GHR_SIZE-1:0]), .hash(mp_hashed[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
+   css_mcu0_el2_btb_ghr_hash #(.pt(pt)) br0ghrhs (.hashin(dec_tlu_br0_addr_wb[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(exu_i0_br_fghr_wb[pt.BHT_GHR_SIZE-1:0]), .hash(br0_hashed_wb[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
+   css_mcu0_el2_btb_ghr_hash #(.pt(pt)) fghrhs (.hashin(btb_rd_addr_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(fghr[pt.BHT_GHR_SIZE-1:0]), .hash(bht_rd_addr_hashed_f[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
+   css_mcu0_el2_btb_ghr_hash #(.pt(pt)) fghrhs_p1 (.hashin(btb_rd_addr_p1_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]), .ghr(fghr[pt.BHT_GHR_SIZE-1:0]), .hash(bht_rd_addr_hashed_p1_f[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO]));
 
    assign bht_wr_addr0[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO] = mp_hashed[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO];
    assign bht_wr_addr2[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO] = br0_hashed_wb[pt.BHT_ADDR_HI:pt.BHT_ADDR_LO];
@@ -652,13 +652,13 @@ assign use_fa_plus = (~bht_dir_f[0] & ~fetch_start_f[0] & ~btb_rd_pc4_f);
 
       for (j=0 ; j<LRU_SIZE ; j++) begin : BTB_FLOPS
          // Way 0
-         rvdffe #(17+pt.BTB_BTAG_SIZE) btb_bank0_way0 (.*,
+         css_mcu0_rvdffe #(17+pt.BTB_BTAG_SIZE) btb_bank0_way0 (.*,
                     .en(((btb_wr_addr[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO] == j) & btb_wr_en_way0)),
                     .din        (btb_wr_data[BTB_DWIDTH-1:0]),
                     .dout       (btb_bank0_rd_data_way0_out[j]));
 
          // Way 1
-         rvdffe #(17+pt.BTB_BTAG_SIZE) btb_bank0_way1 (.*,
+         css_mcu0_rvdffe #(17+pt.BTB_BTAG_SIZE) btb_bank0_way1 (.*,
                     .en(((btb_wr_addr[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO] == j) & btb_wr_en_way1)),
                     .din        (btb_wr_data[BTB_DWIDTH-1:0]),
                     .dout       (btb_bank0_rd_data_way1_out[j]));
@@ -793,7 +793,7 @@ end // if (!pt.BTB_FULLYA)
       assign wr0_en[j] = ((btb_fa_wr_addr0[BTB_FA_INDEX:0] == j) & (exu_mp_valid_write & ~exu_mp_pkt.way)) |
                          ((dec_fa_error_index == j) & dec_tlu_error_wb);
 
-      rvdffe #(BTB_DWIDTH) btb_fa (.*, .clk(clk),
+      css_mcu0_rvdffe #(BTB_DWIDTH) btb_fa (.*, .clk(clk),
                                    .en  (wr0_en[j]),
                                    .din (btb_wr_data[BTB_DWIDTH-1:0]),
                                    .dout(btbdata[j]));
@@ -813,7 +813,7 @@ end // if (!pt.BTB_FULLYA)
    assign write_used = btb_used_reset | ifu_bp_hit_taken_f | exu_mp_valid_write | dec_tlu_error_wb;
 
 
-   rvdffe #(pt.BTB_SIZE) btb_usedf (.*, .clk(clk),
+   css_mcu0_rvdffe #(pt.BTB_SIZE) btb_usedf (.*, .clk(clk),
                     .en  (write_used),
                     .din (btb_used_ns[pt.BTB_SIZE-1:0]),
                     .dout(btb_used[pt.BTB_SIZE-1:0]));
@@ -841,7 +841,7 @@ end // block: fa
      assign bht_bank_clken[i][k]  = (bht_wr_en0[i] & ((bht_wr_addr0[pt.BHT_ADDR_HI: NUM_BHT_LOOP_OUTER_LO]==k) |  BHT_NO_ADDR_MATCH)) |
                                     (bht_wr_en2[i] & ((bht_wr_addr2[pt.BHT_ADDR_HI: NUM_BHT_LOOP_OUTER_LO]==k) |  BHT_NO_ADDR_MATCH));
 `ifndef RV_FPGA_OPTIMIZE
-     rvclkhdr bht_bank_grp_cgc ( .en(bht_bank_clken[i][k]), .l1clk(bht_bank_clk[i][k]), .* ); // ifndef RV_FPGA_OPTIMIZE
+     css_mcu0_rvclkhdr bht_bank_grp_cgc ( .en(bht_bank_clken[i][k]), .l1clk(bht_bank_clk[i][k]), .* ); // ifndef RV_FPGA_OPTIMIZE
 `endif
 
      for (j=0 ; j<NUM_BHT_LOOP ; j++) begin : BHT_FLOPS
@@ -857,7 +857,7 @@ end // block: fa
 
 
 
-          rvdffs_fpga #(2) bht_bank (.*,
+          css_mcu0_rvdffs_fpga #(2) bht_bank (.*,
                     .clk        (bht_bank_clk[i][k]),
                     .en         (bank_sel),
                     .rawclk     (clk),

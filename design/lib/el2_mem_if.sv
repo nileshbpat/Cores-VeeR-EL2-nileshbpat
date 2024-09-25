@@ -18,9 +18,9 @@
 //********************************************************************************
 
 
-import el2_pkg::*;
-interface el2_mem_if #(
-    `include "el2_param.vh"
+import css_mcu0_el2_pkg::*;
+interface css_mcu0_el2_mem_if #(
+    `include "css_mcu0_el2_param.vh"
 ) ();
   localparam DCCM_ECC_WIDTH = pt.DCCM_FDATA_WIDTH - pt.DCCM_DATA_WIDTH;
 

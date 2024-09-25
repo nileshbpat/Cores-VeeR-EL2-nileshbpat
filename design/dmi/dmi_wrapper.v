@@ -17,11 +17,11 @@
 //  Copyright Western Digital, 2018
 //  Owner : Anusha Narayanamoorthy
 //  Description:  
-//                Wrapper module for JTAG_TAP and DMI synchronizer
+//                Wrapper module css_mcu0_for JTAG_TAP and DMI synchronizer
 //
 //-------------------------------------------------------------------------------------
 
-module dmi_wrapper(
+module css_mcu0_dmi_wrapper(
 
   // JTAG signals
   input              trst_n,              // JTAG reset
@@ -54,7 +54,7 @@ module dmi_wrapper(
 
  
   //jtag_tap instantiation
- rvjtag_tap i_jtag_tap(
+ css_mcu0_rvjtag_tap i_jtag_tap(
    .trst(trst_n),                      // dedicated JTAG TRST (active low) pad signal or asynchronous active low power on reset
    .tck(tck),                          // dedicated JTAG TCK pad signal
    .tms(tms),                          // dedicated JTAG TMS pad signal
@@ -76,8 +76,8 @@ module dmi_wrapper(
 );
 
 
-  // dmi_jtag_to_core_sync instantiation
-  dmi_jtag_to_core_sync i_dmi_jtag_to_core_sync(
+  // css_mcu0_dmi_jtag_to_core_sync instantiation
+  css_mcu0_dmi_jtag_to_core_sync i_dmi_jtag_to_core_sync(
     .wr_en(wr_en),                          // 1 bit  Write enable
     .rd_en(rd_en),                          // 1 bit  Read enable
 

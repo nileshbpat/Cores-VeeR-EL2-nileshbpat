@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// all flops call the rvdff flop
+// all flops call the css_mcu0_rvdff flop
 
 
-module rvdff #( parameter WIDTH=1, SHORT=0 )
+module css_mcu0_rvdff #( parameter WIDTH=1, SHORT=0 )
    (
      input logic [WIDTH-1:0] din,
      input logic           clk,
@@ -45,8 +45,8 @@ else begin
 end
 endmodule
 
-// rvdff with 2:1 input mux to flop din iff sel==1
-module rvdffs #( parameter WIDTH=1, SHORT=0 )
+// css_mcu0_rvdff with 2:1 input mux to flop din iff sel==1
+module css_mcu0_rvdffs #( parameter WIDTH=1, SHORT=0 )
    (
      input logic [WIDTH-1:0] din,
      input logic             en,
@@ -59,13 +59,13 @@ if (SHORT == 1) begin : genblock
    assign dout = din;
 end
 else begin : genblock
-   rvdff #(WIDTH) dffs (.din((en) ? din[WIDTH-1:0] : dout[WIDTH-1:0]), .*);
+   css_mcu0_rvdff #(WIDTH) dffs (.din((en) ? din[WIDTH-1:0] : dout[WIDTH-1:0]), .*);
 end
 
 endmodule
 
-// rvdff with en and clear
-module rvdffsc #( parameter WIDTH=1, SHORT=0 )
+// css_mcu0_rvdff with en and clear
+module css_mcu0_rvdffsc #( parameter WIDTH=1, SHORT=0 )
    (
      input logic [WIDTH-1:0] din,
      input logic             en,
@@ -81,12 +81,12 @@ if (SHORT == 1) begin : genblock
 end
 else begin : genblock
    assign din_new = {WIDTH{~clear}} & (en ? din[WIDTH-1:0] : dout[WIDTH-1:0]);
-   rvdff #(WIDTH) dffsc (.din(din_new[WIDTH-1:0]), .*);
+   css_mcu0_rvdff #(WIDTH) dffsc (.din(din_new[WIDTH-1:0]), .*);
 end
 endmodule
 
 // _fpga versions
-module rvdff_fpga #( parameter WIDTH=1, SHORT=0 )
+module css_mcu0_rvdff_fpga #( parameter WIDTH=1, SHORT=0 )
    (
      input logic [WIDTH-1:0] din,
      input logic           clk,
@@ -102,15 +102,15 @@ if (SHORT == 1) begin : genblock
 end
 else begin : genblock
    `ifdef RV_FPGA_OPTIMIZE
-    rvdffs #(WIDTH) dffs (.clk(rawclk), .en(clken), .*);
+    css_mcu0_rvdffs #(WIDTH) dffs (.clk(rawclk), .en(clken), .*);
 `else
-    rvdff #(WIDTH)  dff (.*);
+    css_mcu0_rvdff #(WIDTH)  dff (.*);
 `endif
 end
 endmodule
 
-// rvdff with 2:1 input mux to flop din iff sel==1
-module rvdffs_fpga #( parameter WIDTH=1, SHORT=0 )
+// css_mcu0_rvdff with 2:1 input mux to flop din iff sel==1
+module css_mcu0_rvdffs_fpga #( parameter WIDTH=1, SHORT=0 )
    (
      input logic [WIDTH-1:0] din,
      input logic             en,
@@ -127,16 +127,16 @@ if (SHORT == 1) begin : genblock
 end
 else begin : genblock
 `ifdef RV_FPGA_OPTIMIZE
-   rvdffs #(WIDTH)   dffs (.clk(rawclk), .en(clken & en), .*);
+   css_mcu0_rvdffs #(WIDTH)   dffs (.clk(rawclk), .en(clken & en), .*);
 `else
-   rvdffs #(WIDTH)   dffs (.*);
+   css_mcu0_rvdffs #(WIDTH)   dffs (.*);
 `endif
 end
 
 endmodule
 
-// rvdff with en and clear
-module rvdffsc_fpga #( parameter WIDTH=1, SHORT=0 )
+// css_mcu0_rvdff with en and clear
+module css_mcu0_rvdffsc_fpga #( parameter WIDTH=1, SHORT=0 )
    (
      input logic [WIDTH-1:0] din,
      input logic             en,
@@ -155,15 +155,15 @@ if (SHORT == 1) begin : genblock
 end
 else begin : genblock
 `ifdef RV_FPGA_OPTIMIZE
-   rvdffs  #(WIDTH)   dffs  (.clk(rawclk), .din(din[WIDTH-1:0] & {WIDTH{~clear}}),.en((en | clear) & clken), .*);
+   css_mcu0_rvdffs  #(WIDTH)   dffs  (.clk(rawclk), .din(din[WIDTH-1:0] & {WIDTH{~clear}}),.en((en | clear) & clken), .*);
 `else
-   rvdffsc #(WIDTH)   dffsc (.*);
+   css_mcu0_rvdffsc #(WIDTH)   dffsc (.*);
 `endif
 end
 endmodule
 
 
-module rvdffe #( parameter WIDTH=1, SHORT=0, OVERRIDE=0 )
+module css_mcu0_rvdffe #( parameter WIDTH=1, SHORT=0, OVERRIDE=0 )
    (
      input  logic [WIDTH-1:0] din,
      input  logic           en,
@@ -187,23 +187,23 @@ else begin : genblock
 `endif
 
 `ifdef RV_FPGA_OPTIMIZE
-      rvdffs #(WIDTH) dff ( .* );
+      css_mcu0_rvdffs #(WIDTH) dff ( .* );
 `else
-      rvclkhdr clkhdr ( .* );
-      rvdff #(WIDTH) dff (.*, .clk(l1clk));
+      css_mcu0_rvclkhdr clkhdr ( .* );
+      css_mcu0_rvdff #(WIDTH) dff (.*, .clk(l1clk));
 `endif
 
 `ifndef RV_PHYSICAL
    end
    else
-      $error("%m: rvdffe must be WIDTH >= 8");
+      $error("%m: css_mcu0_rvdffe must be WIDTH >= 8");
 `endif
 end // else: !if(SHORT == 1)
 
 endmodule // rvdffe
 
 
-module rvdffpcie #( parameter WIDTH=31 )
+module css_mcu0_rvdffpcie #( parameter WIDTH=31 )
    (
      input  logic [WIDTH-1:0] din,
      input  logic             clk,
@@ -220,23 +220,23 @@ module rvdffpcie #( parameter WIDTH=31 )
 `endif
 
 `ifdef RV_FPGA_OPTIMIZE
-      rvdffs #(WIDTH) dff ( .* );
+      css_mcu0_rvdffs #(WIDTH) dff ( .* );
 `else
 
-      rvdfflie #(.WIDTH(WIDTH), .LEFT(19)) dff (.*);
+      css_mcu0_rvdfflie #(.WIDTH(WIDTH), .LEFT(19)) dff (.*);
 
 `endif
 
 `ifndef RV_PHYSICAL
    end
    else
-      $error("%m: rvdffpcie width must be 31");
+      $error("%m: css_mcu0_rvdffpcie width must be 31");
 `endif
 endmodule
 
 // format: { LEFT, EXTRA }
-// LEFT # of bits will be done with rvdffie, all else EXTRA with rvdffe
-module rvdfflie #( parameter WIDTH=16, LEFT=8 )
+// LEFT # of bits will be done with css_mcu0_rvdffie, all else EXTRA with rvdffe
+module css_mcu0_rvdfflie #( parameter WIDTH=16, LEFT=8 )
    (
      input  logic [WIDTH-1:0] din,
      input  logic             clk,
@@ -265,13 +265,13 @@ module rvdfflie #( parameter WIDTH=16, LEFT=8 )
 `endif
 
 `ifdef RV_FPGA_OPTIMIZE
-      rvdffs #(WIDTH) dff ( .* );
+      css_mcu0_rvdffs #(WIDTH) dff ( .* );
 `else
 
-      rvdffiee #(LEFT)  dff_left  (.*, .din(din[LMSB:LLSB]), .dout(dout[LMSB:LLSB]));
+      css_mcu0_rvdffiee #(LEFT)  dff_left  (.*, .din(din[LMSB:LLSB]), .dout(dout[LMSB:LLSB]));
 
 
-      rvdffe  #(EXTRA)  dff_extra (.*, .din(din[XMSB:XLSB]), .dout(dout[XMSB:XLSB]));
+      css_mcu0_rvdffe  #(EXTRA)  dff_extra (.*, .din(din[XMSB:XLSB]), .dout(dout[XMSB:XLSB]));
 
 
 
@@ -281,7 +281,7 @@ module rvdfflie #( parameter WIDTH=16, LEFT=8 )
 `ifndef RV_PHYSICAL
    end
    else
-      $error("%m: rvdfflie musb be WIDTH >= 16 && LEFT >= 8 && EXTRA >= 8");
+      $error("%m: css_mcu0_rvdfflie musb be WIDTH >= 16 && LEFT >= 8 && EXTRA >= 8");
 `endif
 endmodule
 
@@ -290,8 +290,8 @@ endmodule
 
 // special power flop for predict packet
 // format: { LEFT, RIGHT==31 }
-// LEFT # of bits will be done with rvdffe; RIGHT is enabled by LEFT[LSB] & en
-module rvdffppe #( parameter integer WIDTH = 39 )
+// LEFT # of bits will be done with css_mcu0_rvdffe; RIGHT is enabled by LEFT[LSB] & en
+module css_mcu0_rvdffppe #( parameter integer WIDTH = 39 )
    (
      input  logic [WIDTH-1:0] din,
      input  logic             clk,
@@ -315,11 +315,11 @@ module rvdffppe #( parameter integer WIDTH = 39 )
 `endif
 
 `ifdef RV_FPGA_OPTIMIZE
-      rvdffs #(WIDTH) dff ( .* );
+      css_mcu0_rvdffs #(WIDTH) dff ( .* );
 `else
-      rvdffe #(LEFT)     dff_left (.*, .din(din[LMSB:LLSB]), .dout(dout[LMSB:LLSB]));
+      css_mcu0_rvdffe #(LEFT)     dff_left (.*, .din(din[LMSB:LLSB]), .dout(dout[LMSB:LLSB]));
 
-      rvdffe #(RIGHT)   dff_right (.*, .din(din[RMSB:RLSB]), .dout(dout[RMSB:RLSB]), .en(en & din[LLSB]));  // qualify with pret
+      css_mcu0_rvdffe #(RIGHT)   dff_right (.*, .din(din[RMSB:RLSB]), .dout(dout[RMSB:RLSB]), .en(en & din[LLSB]));  // qualify with pret
 
 
 `endif
@@ -334,7 +334,7 @@ endmodule
 
 
 
-module rvdffie #( parameter WIDTH=1, OVERRIDE=0 )
+module css_mcu0_rvdffie #( parameter WIDTH=1, OVERRIDE=0 )
    (
      input  logic [WIDTH-1:0] din,
 
@@ -361,23 +361,23 @@ module rvdffie #( parameter WIDTH=1, OVERRIDE=0 )
       assign en = |(din ^ dout);
 
 `ifdef RV_FPGA_OPTIMIZE
-      rvdffs #(WIDTH) dff ( .* );
+      css_mcu0_rvdffs #(WIDTH) dff ( .* );
 `else
-      rvclkhdr clkhdr ( .* );
-      rvdff #(WIDTH) dff (.*, .clk(l1clk));
+      css_mcu0_rvclkhdr clkhdr ( .* );
+      css_mcu0_rvdff #(WIDTH) dff (.*, .clk(l1clk));
 `endif
 
 `ifndef RV_PHYSICAL
    end
    else
-     $error("%m: rvdffie must be WIDTH >= 8");
+     $error("%m: css_mcu0_rvdffie must be WIDTH >= 8");
 `endif
 
 
 endmodule
 
 // ie flop but it has an .en input
-module rvdffiee #( parameter WIDTH=1, OVERRIDE=0 )
+module css_mcu0_rvdffiee #( parameter WIDTH=1, OVERRIDE=0 )
    (
      input  logic [WIDTH-1:0] din,
 
@@ -398,22 +398,22 @@ module rvdffiee #( parameter WIDTH=1, OVERRIDE=0 )
       assign final_en = (|(din ^ dout)) & en;
 
 `ifdef RV_FPGA_OPTIMIZE
-      rvdffs #(WIDTH) dff ( .*, .en(final_en) );
+      css_mcu0_rvdffs #(WIDTH) dff ( .*, .en(final_en) );
 `else
-      rvdffe #(WIDTH) dff (.*,  .en(final_en));
+      css_mcu0_rvdffe #(WIDTH) dff (.*,  .en(final_en));
 `endif
 
 `ifndef RV_PHYSICAL
    end
    else
-      $error("%m: rvdffie width must be >= 8");
+      $error("%m: css_mcu0_rvdffie width must be >= 8");
 `endif
 
 endmodule
 
 
 
-module rvsyncss #(parameter WIDTH = 251)
+module css_mcu0_rvsyncss #(parameter WIDTH = 251)
    (
      input  logic                 clk,
      input  logic                 rst_l,
@@ -423,12 +423,12 @@ module rvsyncss #(parameter WIDTH = 251)
 
    logic [WIDTH-1:0]              din_ff1;
 
-   rvdff #(WIDTH) sync_ff1  (.*, .din (din[WIDTH-1:0]),     .dout(din_ff1[WIDTH-1:0]));
-   rvdff #(WIDTH) sync_ff2  (.*, .din (din_ff1[WIDTH-1:0]), .dout(dout[WIDTH-1:0]));
+   css_mcu0_rvdff #(WIDTH) sync_ff1  (.*, .din (din[WIDTH-1:0]),     .dout(din_ff1[WIDTH-1:0]));
+   css_mcu0_rvdff #(WIDTH) sync_ff2  (.*, .din (din_ff1[WIDTH-1:0]), .dout(dout[WIDTH-1:0]));
 
 endmodule // rvsyncss
 
-module rvsyncss_fpga #(parameter WIDTH = 251)
+module css_mcu0_rvsyncss_fpga #(parameter WIDTH = 251)
    (
      input  logic                 gw_clk,
      input  logic                 rawclk,
@@ -440,12 +440,12 @@ module rvsyncss_fpga #(parameter WIDTH = 251)
 
    logic [WIDTH-1:0]              din_ff1;
 
-   rvdff_fpga #(WIDTH) sync_ff1  (.*, .clk(gw_clk), .rawclk(rawclk), .clken(clken), .din (din[WIDTH-1:0]),     .dout(din_ff1[WIDTH-1:0]));
-   rvdff_fpga #(WIDTH) sync_ff2  (.*, .clk(gw_clk), .rawclk(rawclk), .clken(clken), .din (din_ff1[WIDTH-1:0]), .dout(dout[WIDTH-1:0]));
+   css_mcu0_rvdff_fpga #(WIDTH) sync_ff1  (.*, .clk(gw_clk), .rawclk(rawclk), .clken(clken), .din (din[WIDTH-1:0]),     .dout(din_ff1[WIDTH-1:0]));
+   css_mcu0_rvdff_fpga #(WIDTH) sync_ff2  (.*, .clk(gw_clk), .rawclk(rawclk), .clken(clken), .din (din_ff1[WIDTH-1:0]), .dout(dout[WIDTH-1:0]));
 
 endmodule // rvsyncss
 
-module rvlsadder
+module css_mcu0_rvlsadder
   (
     input logic [31:0] rs1,
     input logic [11:0] offset,
@@ -475,7 +475,7 @@ endmodule // rvlsadder
 
 // assume we only maintain pc[31:1] in the pipe
 
-module rvbradder
+module css_mcu0_rvbradder
   (
     input [31:1] pc,
     input [12:1] offset,
@@ -507,7 +507,7 @@ endmodule // rvbradder
 
 
 // 2s complement circuit
-module rvtwoscomp #( parameter WIDTH=32 )
+module css_mcu0_rvtwoscomp #( parameter WIDTH=32 )
    (
      input logic [WIDTH-1:0] din,
 
@@ -527,7 +527,7 @@ module rvtwoscomp #( parameter WIDTH=32 )
 endmodule  // 2'scomp
 
 // find first
-module rvfindfirst1 #( parameter WIDTH=32, SHIFT=$clog2(WIDTH) )
+module css_mcu0_rvfindfirst1 #( parameter WIDTH=32, SHIFT=$clog2(WIDTH) )
    (
      input logic [WIDTH-1:0] din,
 
@@ -546,7 +546,7 @@ module rvfindfirst1 #( parameter WIDTH=32, SHIFT=$clog2(WIDTH) )
    end
 endmodule // rvfindfirst1
 
-module rvfindfirst1hot #( parameter WIDTH=32 )
+module css_mcu0_rvfindfirst1hot #( parameter WIDTH=32 )
    (
      input logic [WIDTH-1:0] din,
 
@@ -566,7 +566,7 @@ endmodule // rvfindfirst1hot
 
 // mask and match function matches bits after finding the first 0 position
 // find first starting from LSB. Skip that location and match the rest of the bits
-module rvmaskandmatch #( parameter WIDTH=32 )
+module css_mcu0_rvmaskandmatch #( parameter WIDTH=32 )
    (
      input  logic [WIDTH-1:0] mask,     // this will have the mask in the lower bit positions
      input  logic [WIDTH-1:0] data,     // this is what needs to be matched on the upper bits with the mask's upper bits
@@ -594,7 +594,7 @@ endmodule // rvmaskandmatch
 
 
 // Check if the S_ADDR <= addr < E_ADDR
-module rvrangecheck  #(CCM_SADR = 32'h0,
+module css_mcu0_rvrangecheck  #(CCM_SADR = 32'h0,
                        CCM_SIZE  = 128) (
    input  logic [31:0]   addr,                             // Address to be checked for range
    output logic          in_range,                            // S_ADDR <= start_addr < E_ADDR
@@ -619,7 +619,7 @@ module rvrangecheck  #(CCM_SADR = 32'h0,
 endmodule  // rvrangechecker
 
 // 16 bit even parity generator
-module rveven_paritygen #(WIDTH = 16)  (
+module css_mcu0_rveven_paritygen #(WIDTH = 16)  (
                                          input  logic [WIDTH-1:0]  data_in,         // Data
                                          output logic              parity_out       // generated even parity
                                          );
@@ -628,7 +628,7 @@ module rveven_paritygen #(WIDTH = 16)  (
 
 endmodule  // rveven_paritygen
 
-module rveven_paritycheck #(WIDTH = 16)  (
+module css_mcu0_rveven_paritycheck #(WIDTH = 16)  (
                                            input  logic [WIDTH-1:0]  data_in,         // Data
                                            input  logic              parity_in,
                                            output logic              parity_err       // Parity error
@@ -638,7 +638,7 @@ module rveven_paritycheck #(WIDTH = 16)  (
 
 endmodule  // rveven_paritycheck
 
-module rvecc_encode  (
+module css_mcu0_rvecc_encode  (
                       input [31:0] din,
                       output [6:0] ecc_out
                       );
@@ -655,7 +655,7 @@ logic [5:0] ecc_out_temp;
 
 endmodule // rvecc_encode
 
-module rvecc_decode  (
+module css_mcu0_rvecc_decode  (
                       input         en,
                       input [31:0]  din,
                       input [6:0]   ecc_in,
@@ -699,7 +699,7 @@ module rvecc_decode  (
 
 endmodule // rvecc_decode
 
-module rvecc_encode_64  (
+module css_mcu0_rvecc_encode_64  (
                       input [63:0] din,
                       output [6:0] ecc_out
                       );
@@ -720,7 +720,7 @@ module rvecc_encode_64  (
 endmodule // rvecc_encode_64
 
 
-module rvecc_decode_64  (
+module css_mcu0_rvecc_decode_64  (
                       input         en,
                       input [63:0]  din,
                       input [6:0]   ecc_in,
@@ -749,7 +749,7 @@ module rvecc_decode_64  (
  endmodule // rvecc_decode_64
 
 `ifndef TECH_SPECIFIC_EC_RV_ICG
-module `TEC_RV_ICG
+module `css_mcu0_TEC_RV_ICG
   (
    input logic SE, EN, CK,
    output Q
@@ -770,7 +770,7 @@ endmodule
 `endif
 
 `ifndef RV_FPGA_OPTIMIZE
-module rvclkhdr
+module css_mcu0_rvclkhdr
   (
    input  logic en,
    input  logic clk,
@@ -782,15 +782,15 @@ module rvclkhdr
    assign       SE = 0;
 
 `ifdef TECH_SPECIFIC_EC_RV_ICG
-   `USER_EC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
+   `css_mcu0_USER_EC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
 `else
-   `TEC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
+   `css_mcu0_TEC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
 `endif
 
 endmodule // rvclkhdr
 `endif
 
-module rvoclkhdr
+module css_mcu0_rvoclkhdr
   (
    input  logic en,
    input  logic clk,
@@ -805,9 +805,9 @@ module rvoclkhdr
    assign l1clk = clk;
 `else
    `ifdef TECH_SPECIFIC_EC_RV_ICG
-      `USER_EC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
+      `css_mcu0_USER_EC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
    `else
-      `TEC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
+      `css_mcu0_TEC_RV_ICG clkhdr ( .*, .EN(en), .CK(clk), .Q(l1clk));
     `endif
 `endif
 

@@ -17,10 +17,10 @@
 
 // purpose of this file is to convert 16b RISCV compressed instruction into 32b equivalent
 
-module el2_ifu_compress_ctl
-import el2_pkg::*;
+module css_mcu0_el2_ifu_compress_ctl
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
    input  logic [15:0] din,        // 16-bit   compressed instruction

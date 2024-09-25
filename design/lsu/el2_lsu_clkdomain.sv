@@ -23,10 +23,10 @@
 // //********************************************************************************
 
 
-module el2_lsu_clkdomain
-import el2_pkg::*;
+module css_mcu0_el2_lsu_clkdomain
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
 )(
    input logic      clk,                               // Clock only while core active.  Through one clock header.  For flops with    second clock header built in.  Connected to ACTIVE_L2CLK.
    input logic      active_clk,                        // Clock only while core active.  Through two clock headers. For flops without second clock header built in.
@@ -110,24 +110,24 @@ import el2_pkg::*;
    assign lsu_free_c2_clken = lsu_free_c1_clken | lsu_free_c1_clken_q | clk_override;
 
     // Flops
-   rvdff #(1) lsu_free_c1_clkenff (.din(lsu_free_c1_clken), .dout(lsu_free_c1_clken_q), .clk(active_clk), .*);
+   css_mcu0_rvdff #(1) lsu_free_c1_clkenff (.din(lsu_free_c1_clken), .dout(lsu_free_c1_clken_q), .clk(active_clk), .*);
 
-   rvdff #(1) lsu_c1_m_clkenff (.din(lsu_c1_m_clken), .dout(lsu_c1_m_clken_q), .clk(lsu_free_c2_clk), .*);
-   rvdff #(1) lsu_c1_r_clkenff (.din(lsu_c1_r_clken), .dout(lsu_c1_r_clken_q), .clk(lsu_free_c2_clk), .*);
+   css_mcu0_rvdff #(1) lsu_c1_m_clkenff (.din(lsu_c1_m_clken), .dout(lsu_c1_m_clken_q), .clk(lsu_free_c2_clk), .*);
+   css_mcu0_rvdff #(1) lsu_c1_r_clkenff (.din(lsu_c1_r_clken), .dout(lsu_c1_r_clken_q), .clk(lsu_free_c2_clk), .*);
 
    // Clock Headers
-   rvoclkhdr lsu_c1m_cgc ( .en(lsu_c1_m_clken), .l1clk(lsu_c1_m_clk), .* );
-   rvoclkhdr lsu_c1r_cgc ( .en(lsu_c1_r_clken), .l1clk(lsu_c1_r_clk), .* );
+   css_mcu0_rvoclkhdr lsu_c1m_cgc ( .en(lsu_c1_m_clken), .l1clk(lsu_c1_m_clk), .* );
+   css_mcu0_rvoclkhdr lsu_c1r_cgc ( .en(lsu_c1_r_clken), .l1clk(lsu_c1_r_clk), .* );
 
-   rvoclkhdr lsu_c2m_cgc ( .en(lsu_c2_m_clken), .l1clk(lsu_c2_m_clk), .* );
-   rvoclkhdr lsu_c2r_cgc ( .en(lsu_c2_r_clken), .l1clk(lsu_c2_r_clk), .* );
+   css_mcu0_rvoclkhdr lsu_c2m_cgc ( .en(lsu_c2_m_clken), .l1clk(lsu_c2_m_clk), .* );
+   css_mcu0_rvoclkhdr lsu_c2r_cgc ( .en(lsu_c2_r_clken), .l1clk(lsu_c2_r_clk), .* );
 
-   rvoclkhdr lsu_store_c1m_cgc (.en(lsu_store_c1_m_clken), .l1clk(lsu_store_c1_m_clk), .*);
-   rvoclkhdr lsu_store_c1r_cgc (.en(lsu_store_c1_r_clken), .l1clk(lsu_store_c1_r_clk), .*);
+   css_mcu0_rvoclkhdr lsu_store_c1m_cgc (.en(lsu_store_c1_m_clken), .l1clk(lsu_store_c1_m_clk), .*);
+   css_mcu0_rvoclkhdr lsu_store_c1r_cgc (.en(lsu_store_c1_r_clken), .l1clk(lsu_store_c1_r_clk), .*);
 
-   rvoclkhdr lsu_stbuf_c1_cgc ( .en(lsu_stbuf_c1_clken), .l1clk(lsu_stbuf_c1_clk), .* );
-   rvoclkhdr lsu_bus_ibuf_c1_cgc ( .en(lsu_bus_ibuf_c1_clken), .l1clk(lsu_bus_ibuf_c1_clk), .* );
-   rvoclkhdr lsu_bus_buf_c1_cgc  ( .en(lsu_bus_buf_c1_clken),  .l1clk(lsu_bus_buf_c1_clk), .* );
+   css_mcu0_rvoclkhdr lsu_stbuf_c1_cgc ( .en(lsu_stbuf_c1_clken), .l1clk(lsu_stbuf_c1_clk), .* );
+   css_mcu0_rvoclkhdr lsu_bus_ibuf_c1_cgc ( .en(lsu_bus_ibuf_c1_clken), .l1clk(lsu_bus_ibuf_c1_clk), .* );
+   css_mcu0_rvoclkhdr lsu_bus_buf_c1_cgc  ( .en(lsu_bus_buf_c1_clken),  .l1clk(lsu_bus_buf_c1_clk), .* );
 
    assign lsu_busm_clken = (~lsu_bus_buffer_empty_any | lsu_busreq_r | clk_override) & lsu_bus_clk_en;
 
@@ -135,11 +135,11 @@ import el2_pkg::*;
    assign lsu_busm_clk = 1'b0;
    assign lsu_bus_obuf_c1_clk = 1'b0;
 `else
-   rvclkhdr  lsu_bus_obuf_c1_cgc ( .en(lsu_bus_obuf_c1_clken), .l1clk(lsu_bus_obuf_c1_clk), .* );
-   rvclkhdr  lsu_busm_cgc (.en(lsu_busm_clken), .l1clk(lsu_busm_clk), .*);
+   css_mcu0_rvclkhdr  lsu_bus_obuf_c1_cgc ( .en(lsu_bus_obuf_c1_clken), .l1clk(lsu_bus_obuf_c1_clk), .* );
+   css_mcu0_rvclkhdr  lsu_busm_cgc (.en(lsu_busm_clken), .l1clk(lsu_busm_clk), .*);
 `endif
 
-   rvoclkhdr lsu_free_cgc (.en(lsu_free_c2_clken), .l1clk(lsu_free_c2_clk), .*);
+   css_mcu0_rvoclkhdr lsu_free_cgc (.en(lsu_free_c2_clken), .l1clk(lsu_free_c2_clk), .*);
 
 endmodule
 

@@ -17,14 +17,14 @@
 //********************************************************************************
 // $Id$
 //
-// Function: Top wrapper file with el2_veer/mem instantiated inside
+// Function: Top wrapper file with css_mcu0_el2_veer/mem instantiated inside
 // Comments:
 //
 //********************************************************************************
-module el2_veer_wrapper
-import el2_pkg::*;
+module css_mcu0_el2_veer_wrapper
+import css_mcu0_el2_pkg::*;
  #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
 )
 (
    input logic                             clk,
@@ -45,7 +45,7 @@ import el2_pkg::*;
    output logic [31:0]                     trace_rv_i_tval_ip,
 
    // Bus signals
-`ifdef RV_BUILD_AXI4
+`ifdef css_mcu0_RV_BUILD_AXI4
    //-------------------------- LSU AXI signals--------------------------
    // AXI Write Channels
    output logic                            lsu_axi_awvalid,
@@ -322,7 +322,7 @@ import el2_pkg::*;
    input logic [31:4] core_id,
 
    // Memory Export Interface
-   el2_mem_if.veer_sram_src                el2_mem_export,
+   css_mcu0_el2_mem_if.veer_sram_src                el2_mem_export,
 
    // external MPC halt/run interface
    input logic                             mpc_debug_halt_req, // Async halt request
@@ -417,7 +417,7 @@ import el2_pkg::*;
 
 
    // zero out the signals not presented at the wrapper instantiation level
-`ifdef RV_BUILD_AXI4
+`ifdef css_mcu0_RV_BUILD_AXI4
 
  //// AHB LITE BUS
    logic [31:0]              haddr;
@@ -767,14 +767,14 @@ import el2_pkg::*;
    logic [31:0]            dmi_reg_wdata;
    logic [31:0]            dmi_reg_rdata;
 
-   // Instantiate the el2_veer core
-   el2_veer #(.pt(pt)) veer (
+   // Instantiate the css_mcu0_el2_veer core
+   css_mcu0_el2_veer #(.pt(pt)) veer (
                                 .clk(clk),
                                 .*
                                 );
 
    // Instantiate the mem
-   el2_mem  #(.pt(pt)) mem (
+   css_mcu0_el2_mem  #(.pt(pt)) mem (
                              .clk(active_l2clk),
                              .rst_l(core_rst_l),
                              .mem_export(el2_mem_export),
@@ -783,7 +783,7 @@ import el2_pkg::*;
 
 
    //  JTAG/DMI instance
-   dmi_wrapper  dmi_wrapper (
+   css_mcu0_dmi_wrapper  css_mcu0_dmi_wrapper (
     // JTAG signals
     .trst_n      (jtag_trst_n),     // JTAG reset
     .tck         (jtag_tck),        // JTAG clock
@@ -804,7 +804,7 @@ import el2_pkg::*;
    );
 
    // DMI core/uncore mux
-   dmi_mux dmi_mux (
+   css_mcu0_dmi_mux dmi_mux (
     .uncore_enable      (dmi_uncore_enable),
 
     .dmi_en             (dmi_en),

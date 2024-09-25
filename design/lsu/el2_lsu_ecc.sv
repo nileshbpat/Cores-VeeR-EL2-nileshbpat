@@ -25,10 +25,10 @@
 // DC1 -> DC2 -> DC3 -> DC4 (Commit)
 //
 //********************************************************************************
-module el2_lsu_ecc
-import el2_pkg::*;
+module css_mcu0_el2_lsu_ecc
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
 (
    input logic                           clk,                // Clock only while core active.  Through one clock header.  For flops with    second clock header built in.  Connected to ACTIVE_L2CLK.
@@ -159,12 +159,12 @@ import el2_pkg::*;
       assign lsu_double_ecc_error_m                      = double_ecc_error_hi_m   | double_ecc_error_lo_m;
 
       // Flops
-      rvdff  #(1) lsu_single_ecc_err_r    (.din(lsu_single_ecc_error_m), .dout(lsu_single_ecc_error_r), .clk(lsu_c2_r_clk), .*);
-      rvdff  #(1) lsu_double_ecc_err_r    (.din(lsu_double_ecc_error_m), .dout(lsu_double_ecc_error_r), .clk(lsu_c2_r_clk), .*);
-      rvdff  #(.WIDTH(1)) ldst_sec_lo_rff (.din(single_ecc_error_lo_any),  .dout(single_ecc_error_lo_r),  .clk(lsu_c2_r_clk), .*);
-      rvdff  #(.WIDTH(1)) ldst_sec_hi_rff (.din(single_ecc_error_hi_any),  .dout(single_ecc_error_hi_r),  .clk(lsu_c2_r_clk), .*);
-      rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_hi_rff (.din(sec_data_hi_m[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_hi_r[pt.DCCM_DATA_WIDTH-1:0]), .en(lsu_single_ecc_error_m | clk_override), .*);
-      rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_lo_rff (.din(sec_data_lo_m[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_lo_r[pt.DCCM_DATA_WIDTH-1:0]), .en(lsu_single_ecc_error_m | clk_override), .*);
+      css_mcu0_rvdff  #(1) lsu_single_ecc_err_r    (.din(lsu_single_ecc_error_m), .dout(lsu_single_ecc_error_r), .clk(lsu_c2_r_clk), .*);
+      css_mcu0_rvdff  #(1) lsu_double_ecc_err_r    (.din(lsu_double_ecc_error_m), .dout(lsu_double_ecc_error_r), .clk(lsu_c2_r_clk), .*);
+      css_mcu0_rvdff  #(.WIDTH(1)) ldst_sec_lo_rff (.din(single_ecc_error_lo_any),  .dout(single_ecc_error_lo_r),  .clk(lsu_c2_r_clk), .*);
+      css_mcu0_rvdff  #(.WIDTH(1)) ldst_sec_hi_rff (.din(single_ecc_error_hi_any),  .dout(single_ecc_error_hi_r),  .clk(lsu_c2_r_clk), .*);
+      css_mcu0_rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_hi_rff (.din(sec_data_hi_m[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_hi_r[pt.DCCM_DATA_WIDTH-1:0]), .en(lsu_single_ecc_error_m | clk_override), .*);
+      css_mcu0_rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_lo_rff (.din(sec_data_lo_m[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_lo_r[pt.DCCM_DATA_WIDTH-1:0]), .en(lsu_single_ecc_error_m | clk_override), .*);
 
    end
 
@@ -182,7 +182,7 @@ import el2_pkg::*;
    if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
 
       //Detect/Repair for Hi
-      rvecc_decode lsu_ecc_decode_hi (
+      css_mcu0_rvecc_decode lsu_ecc_decode_hi (
          // Inputs
          .en(is_ldst_hi_any),
          .sed_ded (1'b0),    // 1 : means only detection
@@ -197,7 +197,7 @@ import el2_pkg::*;
       );
 
       //Detect/Repair for Lo
-      rvecc_decode lsu_ecc_decode_lo (
+      css_mcu0_rvecc_decode lsu_ecc_decode_lo (
          // Inputs
          .en(is_ldst_lo_any),
          .sed_ded (1'b0),    // 1 : means only detection
@@ -211,14 +211,14 @@ import el2_pkg::*;
          .*
       );
 
-      rvecc_encode lsu_ecc_encode_hi (
+      css_mcu0_rvecc_encode lsu_ecc_encode_hi (
          //Inputs
          .din(dccm_wdata_hi_any[pt.DCCM_DATA_WIDTH-1:0]),
          //Outputs
          .ecc_out(dccm_wdata_ecc_hi_any[pt.DCCM_ECC_WIDTH-1:0]),
          .*
       );
-      rvecc_encode lsu_ecc_encode_lo (
+      css_mcu0_rvecc_encode lsu_ecc_encode_lo (
          //Inputs
          .din(dccm_wdata_lo_any[pt.DCCM_DATA_WIDTH-1:0]),
          //Outputs
@@ -234,8 +234,8 @@ import el2_pkg::*;
       assign double_ecc_error_lo_any = '0;
    end
 
-   rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_hi_rplus1ff (.din(sec_data_hi_r[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_hi_r_ff[pt.DCCM_DATA_WIDTH-1:0]), .en(ld_single_ecc_error_r | clk_override), .clk(clk), .*);
-   rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_lo_rplus1ff (.din(sec_data_lo_r[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_lo_r_ff[pt.DCCM_DATA_WIDTH-1:0]), .en(ld_single_ecc_error_r | clk_override), .clk(clk), .*);
+   css_mcu0_rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_hi_rplus1ff (.din(sec_data_hi_r[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_hi_r_ff[pt.DCCM_DATA_WIDTH-1:0]), .en(ld_single_ecc_error_r | clk_override), .clk(clk), .*);
+   css_mcu0_rvdffe #(.WIDTH(pt.DCCM_DATA_WIDTH)) sec_data_lo_rplus1ff (.din(sec_data_lo_r[pt.DCCM_DATA_WIDTH-1:0]), .dout(sec_data_lo_r_ff[pt.DCCM_DATA_WIDTH-1:0]), .en(ld_single_ecc_error_r | clk_override), .clk(clk), .*);
 
 
 endmodule // el2_lsu_ecc

@@ -29,7 +29,7 @@ input logic BC2,             \
 output logic ROP
 
 `define EL2_RAM(depth, width)              \
-module ram_``depth``x``width(               \
+module css_mcu0_ram_``depth``x``width(               \
    input logic [$clog2(depth)-1:0] ADR,     \
    input logic [(width-1):0] D,             \
    output logic [(width-1):0] Q,            \
@@ -56,7 +56,7 @@ assign ROP = ME;                            \
 endmodule
 
 `define EL2_RAM_BE(depth, width)           \
-module ram_be_``depth``x``width(            \
+module css_mcu0_ram_be_``depth``x``width(            \
    input logic [$clog2(depth)-1:0] ADR,     \
    input logic [(width-1):0] D, WEM,        \
    output logic [(width-1):0] Q,            \
@@ -83,7 +83,7 @@ assign ROP = ME;                            \
 endmodule
 
 // parameterizable RAM for verilator sims
-module el2_ram #(depth=4096, width=39) (
+module css_mcu0_el2_ram #(depth=4096, width=39) (
 input logic [$clog2(depth)-1:0] ADR,
 input logic [(width-1):0] D,
 output logic [(width-1):0] Q,

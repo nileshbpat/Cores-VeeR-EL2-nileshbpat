@@ -1,7 +1,7 @@
 // DMI core aperture ranges from 0x00 to 0x4F. Addresses starting from 0x50
 // and above are considered uncore.
 
-module dmi_mux (
+module css_mcu0_dmi_mux (
 
     // Uncore access enable
     input wire uncore_enable,

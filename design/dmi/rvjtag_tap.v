@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-module rvjtag_tap #(
+module css_mcu0_rvjtag_tap #(
 parameter AWIDTH = 7
 )
 (

@@ -22,10 +22,10 @@
 // Comments:
 //
 //********************************************************************************
-module el2_lsu_bus_intf
-import el2_pkg::*;
+module css_mcu0_el2_lsu_bus_intf
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )(
    input logic                          clk,                                // Clock only while core active.  Through one clock header.  For flops with    second clock header built in.  Connected to ACTIVE_L2CLK.
    input logic                          clk_override,                       // Override non-functional clock gating
@@ -186,7 +186,7 @@ import el2_pkg::*;
                                  ({4{lsu_pkt_m.word}} & 4'b1111);
 
    // Read/Write Buffer
-   el2_lsu_bus_buffer #(.pt(pt)) bus_buffer (
+   css_mcu0_el2_lsu_bus_buffer #(.pt(pt)) bus_buffer (
       .*
    );
 
@@ -261,11 +261,11 @@ import el2_pkg::*;
 
    // Fifo flops
 
-   rvdff #(.WIDTH(1)) clken_ff (.din(lsu_bus_clk_en), .dout(lsu_bus_clk_en_q), .clk(active_clk), .*);
+   css_mcu0_rvdff #(.WIDTH(1)) clken_ff (.din(lsu_bus_clk_en), .dout(lsu_bus_clk_en_q), .clk(active_clk), .*);
 
-   rvdff #(.WIDTH(1)) is_sideeffects_rff (.din(is_sideeffects_m), .dout(is_sideeffects_r), .clk(lsu_c1_r_clk), .*);
+   css_mcu0_rvdff #(.WIDTH(1)) is_sideeffects_rff (.din(is_sideeffects_m), .dout(is_sideeffects_r), .clk(lsu_c1_r_clk), .*);
 
-   rvdff #(4) lsu_byten_rff (.*, .din(ldst_byteen_m[3:0]), .dout(ldst_byteen_r[3:0]), .clk(lsu_c1_r_clk));
+   css_mcu0_rvdff #(4) lsu_byten_rff (.*, .din(ldst_byteen_m[3:0]), .dout(ldst_byteen_r[3:0]), .clk(lsu_c1_r_clk));
 
 `ifdef RV_ASSERT_ON
 

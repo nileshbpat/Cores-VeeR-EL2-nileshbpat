@@ -19,10 +19,10 @@
 // BFF -> F1 -> F2 -> A
 //********************************************************************************
 
-module el2_ifu
-import el2_pkg::*;
+module css_mcu0_el2_ifu
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
    input logic free_l2clk,                   // Clock always.                  Through one clock header.  For flops with    second header built in.
@@ -271,12 +271,12 @@ import el2_pkg::*;
  logic                       ifc_region_acc_fault_bf;       // Access fault. in ICCM region but offset is outside defined ICCM.
 
    // fetch control
-   el2_ifu_ifc_ctl #(.pt(pt)) ifc (.*
+   css_mcu0_el2_ifu_ifc_ctl #(.pt(pt)) ifc (.*
                     );
 
    // branch predictor
    if (pt.BTB_ENABLE==1) begin  : bpred
-      el2_ifu_bp_ctl #(.pt(pt)) bp (.*);
+      css_mcu0_el2_ifu_bp_ctl #(.pt(pt)) bp (.*);
    end
    else begin : bpred
       assign ifu_bp_hit_taken_f = '0;
@@ -294,13 +294,13 @@ import el2_pkg::*;
 
    // aligner
 
-   el2_ifu_aln_ctl #(.pt(pt)) aln (
+   css_mcu0_el2_ifu_aln_ctl #(.pt(pt)) aln (
                                     .*
                                     );
 
 
    // icache
-   el2_ifu_mem_ctl #(.pt(pt)) mem_ctl
+   css_mcu0_el2_ifu_mem_ctl #(.pt(pt)) mem_ctl
      (.*,
       .ic_data_f(ic_data_f[31:0])
       );
@@ -336,14 +336,14 @@ import el2_pkg::*;
    assign exu_mp_addr[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]  = exu_mp_index[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO] ;  // BTB/BHT address
 
    logic [pt.BTB_ADDR_HI:pt.BTB_ADDR_LO] btb_rd_addr_f;
- `define DEC `CPU_TOP.dec
- `define EXU `CPU_TOP.exu
-   el2_btb_addr_hash f2hash(.pc(ifc_fetch_addr_f[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]), .hash(btb_rd_addr_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
+ `define DEC `css_mcu0_CPU_TOP.dec
+ `define EXU `css_mcu0_CPU_TOP.exu
+   css_mcu0_el2_btb_addr_hash f2hash(.pc(ifc_fetch_addr_f[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]), .hash(btb_rd_addr_f[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
    logic [31:0] mppc_ns, mppc;
    logic        exu_flush_final_d1;
    assign mppc_ns[31:1] = `EXU.i0_flush_upper_x ? `EXU.exu_i0_pc_x : `EXU.dec_i0_pc_d;
    assign mppc_ns[0] = 1'b0;
-   rvdff #(33)  junk_ff (.*, .clk(active_clk), .din({mppc_ns[31:0], exu_flush_final}), .dout({mppc[31:0], exu_flush_final_d1}));
+   css_mcu0_rvdff #(33)  junk_ff (.*, .clk(active_clk), .din({mppc_ns[31:0], exu_flush_final}), .dout({mppc[31:0], exu_flush_final_d1}));
    logic  tmp_bnk;
    assign tmp_bnk = bpred.bp.btb_sel_f[1];
 

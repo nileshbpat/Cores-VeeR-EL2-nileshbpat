@@ -25,10 +25,10 @@
 //
 //********************************************************************************
 
-module el2_lsu
-import el2_pkg::*;
+module css_mcu0_el2_lsu
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
 (
 
@@ -294,7 +294,7 @@ import el2_pkg::*;
    assign       lsu_raw_fwd_lo_m = (|stbuf_fwdbyteen_lo_m[pt.DCCM_BYTE_WIDTH-1:0]);
    assign       lsu_raw_fwd_hi_m = (|stbuf_fwdbyteen_hi_m[pt.DCCM_BYTE_WIDTH-1:0]);
 
-   el2_lsu_lsc_ctl #(.pt(pt)) lsu_lsc_ctl (.*);
+   css_mcu0_el2_lsu_lsc_ctl #(.pt(pt)) lsu_lsc_ctl (.*);
 
    // block stores in decode  - for either bus or stbuf reasons
    assign lsu_store_stall_any = lsu_stbuf_full_any | lsu_bus_buffer_full_any | ld_single_ecc_error_r_ff;
@@ -347,7 +347,7 @@ import el2_pkg::*;
    assign lsu_pmu_load_external_m  = lsu_pkt_m.valid & lsu_pkt_m.load & addr_external_m;
    assign lsu_pmu_store_external_m = lsu_pkt_m.valid & lsu_pkt_m.store & addr_external_m;
 
-   el2_lsu_dccm_ctl #(.pt(pt)) dccm_ctl (
+   css_mcu0_el2_lsu_dccm_ctl #(.pt(pt)) dccm_ctl (
       .lsu_addr_d(lsu_addr_d[31:0]),
       .end_addr_d(end_addr_d[pt.DCCM_BITS-1:0]),
       .lsu_addr_m(lsu_addr_m[pt.DCCM_BITS-1:0]),
@@ -358,7 +358,7 @@ import el2_pkg::*;
       .*
    );
 
-   el2_lsu_stbuf #(.pt(pt)) stbuf (
+   css_mcu0_el2_lsu_stbuf #(.pt(pt)) stbuf (
       .lsu_addr_d(lsu_addr_d[pt.LSU_SB_BITS-1:0]),
       .end_addr_d(end_addr_d[pt.LSU_SB_BITS-1:0]),
 
@@ -366,7 +366,7 @@ import el2_pkg::*;
 
    );
 
-   el2_lsu_ecc #(.pt(pt)) ecc (
+   css_mcu0_el2_lsu_ecc #(.pt(pt)) ecc (
       .lsu_addr_r(lsu_addr_r[pt.DCCM_BITS-1:0]),
       .end_addr_r(end_addr_r[pt.DCCM_BITS-1:0]),
       .lsu_addr_m(lsu_addr_m[pt.DCCM_BITS-1:0]),
@@ -374,16 +374,16 @@ import el2_pkg::*;
       .*
    );
 
-   el2_lsu_trigger #(.pt(pt)) trigger (
+   css_mcu0_el2_lsu_trigger #(.pt(pt)) trigger (
       .store_data_m(store_data_m[31:0]),
       .*
    );
 
    // Clk domain
-   el2_lsu_clkdomain #(.pt(pt)) clkdomain (.*);
+   css_mcu0_el2_lsu_clkdomain #(.pt(pt)) clkdomain (.*);
 
    // Bus interface
-   el2_lsu_bus_intf #(.pt(pt)) bus_intf (
+   css_mcu0_el2_lsu_bus_intf #(.pt(pt)) bus_intf (
       .lsu_addr_m(lsu_addr_m[31:0] & {32{addr_external_m & lsu_pkt_m.valid}}),
       .lsu_addr_r(lsu_addr_r[31:0] & {32{lsu_busreq_r}}),
 
@@ -395,8 +395,8 @@ import el2_pkg::*;
    );
 
    //Flops
-   rvdff #(3) dma_mem_tag_mff     (.*, .din(dma_mem_tag_d[2:0]), .dout(dma_mem_tag_m[2:0]), .clk(lsu_c1_m_clk));
-   rvdff #(2) lsu_raw_fwd_r_ff    (.*, .din({lsu_raw_fwd_hi_m, lsu_raw_fwd_lo_m}),     .dout({lsu_raw_fwd_hi_r, lsu_raw_fwd_lo_r}),     .clk(lsu_c2_r_clk));
+   css_mcu0_rvdff #(3) dma_mem_tag_mff     (.*, .din(dma_mem_tag_d[2:0]), .dout(dma_mem_tag_m[2:0]), .clk(lsu_c1_m_clk));
+   css_mcu0_rvdff #(2) lsu_raw_fwd_r_ff    (.*, .din({lsu_raw_fwd_hi_m, lsu_raw_fwd_lo_m}),     .dout({lsu_raw_fwd_hi_r, lsu_raw_fwd_lo_r}),     .clk(lsu_c2_r_clk));
 
 `ifdef RV_ASSERT_ON
    logic [1:0] store_data_bypass_sel;

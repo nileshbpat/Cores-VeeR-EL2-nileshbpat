@@ -17,10 +17,10 @@
 ////////////////////////////////////////////////////
 //   ICACHE DATA & TAG MODULE WRAPPER              //
 /////////////////////////////////////////////////////
-module el2_ifu_ic_mem
-import el2_pkg::*;
+module css_mcu0_el2_ifu_ic_mem
+import css_mcu0_el2_pkg::*;
  #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
       input logic                                   clk,                // Clock only while core active.  Through one clock header.  For flops with    second clock header built in.  Connected to ACTIVE_L2CLK.
@@ -60,7 +60,7 @@ import el2_pkg::*;
 
 
 
-   EL2_IC_TAG #(.pt(pt)) ic_tag_inst
+   css_mcu0_EL2_IC_TAG #(.pt(pt)) ic_tag_inst
           (
            .*,
            .ic_wr_en     (ic_wr_en[pt.ICACHE_NUM_WAYS-1:0]),
@@ -68,7 +68,7 @@ import el2_pkg::*;
            .ic_rw_addr   (ic_rw_addr[31:3])
            ) ;
 
-   EL2_IC_DATA #(.pt(pt)) ic_data_inst
+   css_mcu0_EL2_IC_DATA #(.pt(pt)) ic_data_inst
           (
            .*,
            .ic_wr_en     (ic_wr_en[pt.ICACHE_NUM_WAYS-1:0]),
@@ -82,10 +82,10 @@ import el2_pkg::*;
 /////////////////////////////////////////////////
 ////// ICACHE DATA MODULE    ////////////////////
 /////////////////////////////////////////////////
-module EL2_IC_DATA
-import el2_pkg::*;
+module css_mcu0_EL2_IC_DATA
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
      (
       input logic clk,
@@ -232,7 +232,7 @@ import el2_pkg::*;
    assign ic_rw_addr_bank_q[1] = ic_rw_addr_q[pt.ICACHE_INDEX_HI:pt.ICACHE_DATA_INDEX_LO];
 
 
-   rvdffie #(.WIDTH(int'(pt.ICACHE_TAG_INDEX_LO+pt.ICACHE_BANKS_WAY+pt.ICACHE_NUM_WAYS)),.OVERRIDE(1)) miscff
+   css_mcu0_rvdffie #(.WIDTH(int'(pt.ICACHE_TAG_INDEX_LO+pt.ICACHE_BANKS_WAY+pt.ICACHE_NUM_WAYS)),.OVERRIDE(1)) miscff
             (.*,
              .din({ ic_b_rden[pt.ICACHE_BANKS_WAY-1:0],   ic_rw_addr_q[pt.ICACHE_TAG_INDEX_LO-1:1], ic_debug_rd_way_en[pt.ICACHE_NUM_WAYS-1:0],   ic_debug_rd_en}),
              .dout({ic_b_rden_ff[pt.ICACHE_BANKS_WAY-1:0],ic_rw_addr_ff[pt.ICACHE_TAG_INDEX_LO-1:1],ic_debug_rd_way_en_ff[pt.ICACHE_NUM_WAYS-1:0],ic_debug_rd_en_ff})
@@ -249,8 +249,8 @@ import el2_pkg::*;
     logic [pt.ICACHE_NUM_WAYS-1:0][pt.ICACHE_BANKS_WAY-1:0]                                 any_bypass_up;
     logic [pt.ICACHE_NUM_WAYS-1:0][pt.ICACHE_BANKS_WAY-1:0]                                 any_addr_match_up;
 
-`define EL2_IC_DATA_SRAM(depth,width)                                                                               \
-           ram_``depth``x``width ic_bank_sb_way_data (                                                               \
+`define css_mcu0_EL2_IC_DATA_SRAM(depth,width)                                                                               \
+           css_mcu0_ram_``depth``x``width ic_bank_sb_way_data (                                                               \
                                      .ME(ic_bank_way_clken_final_up[i][k]),                                          \
                                      .WE (ic_b_sb_wren[k][i]),                                                       \
                                      .D  (ic_sb_wr_data[k][``width-1:0]),                                            \
@@ -272,7 +272,7 @@ import el2_pkg::*;
                                     );  \
 if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
                  assign wrptr_in_up[i][k] = (wrptr_up[i][k] == (pt.ICACHE_NUM_BYPASS-1)) ? '0 : (wrptr_up[i][k] + 1'd1);                                    \
-                 rvdffs  #(pt.ICACHE_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk),  .en(|write_bypass_en_up[i][k]), .din (wrptr_in_up[i][k]), .dout(wrptr_up[i][k])) ;     \
+                 css_mcu0_rvdffs  #(pt.ICACHE_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk),  .en(|write_bypass_en_up[i][k]), .din (wrptr_in_up[i][k]), .dout(wrptr_up[i][k])) ;     \
                  assign ic_b_sram_en_up[i][k]              = ic_bank_way_clken[k][i];                             \
                  assign ic_b_read_en_up[i][k]              =  ic_b_sram_en_up[i][k] &   ic_b_sb_rden[k][i];       \
                  assign ic_b_write_en_up[i][k]             =  ic_b_sram_en_up[i][k] &   ic_b_sb_wren[k][i];       \
@@ -297,11 +297,11 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
                                                                                                                                                     \
                    assign write_bypass_en_up[i][k][l] = ic_b_read_en_up[i][k]  &  ~any_addr_match_up[i][k] & (wrptr_up[i][k] == l);                 \
                                                                                                                                                     \
-                   rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                                 .din(write_bypass_en_up[i][k][l]), .dout(write_bypass_en_ff_up[i][k][l])) ; \
-                   rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en_up[i][k][l] | ic_b_clear_en_up[i][k][l]),   .din(~ic_b_clear_en_up[i][k][l]),  .dout(index_valid_up[i][k][l])) ;       \
-                   rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                                 .din(sel_bypass_up[i][k][l]),      .dout(sel_bypass_ff_up[i][k][l])) ;     \
-                   rvdffe #((31-pt.ICACHE_DATA_INDEX_LO+1)) ic_addr_index    (.*, .en(write_bypass_en_up[i][k][l]),    .din (ic_b_rw_addr_up[i][k]), .dout(wb_index_hold_up[i][k][l]));         \
-                   rvdffe #(``width)                             rd_data_hold_ff  (.*, .en(write_bypass_en_ff_up[i][k][l]), .din (wb_dout_pre_up[i][k]),  .dout(wb_dout_hold_up[i][k][l]));     \
+                   css_mcu0_rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                                 .din(write_bypass_en_up[i][k][l]), .dout(write_bypass_en_ff_up[i][k][l])) ; \
+                   css_mcu0_rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en_up[i][k][l] | ic_b_clear_en_up[i][k][l]),   .din(~ic_b_clear_en_up[i][k][l]),  .dout(index_valid_up[i][k][l])) ;       \
+                   css_mcu0_rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                                 .din(sel_bypass_up[i][k][l]),      .dout(sel_bypass_ff_up[i][k][l])) ;     \
+                   css_mcu0_rvdffe #((31-pt.ICACHE_DATA_INDEX_LO+1)) ic_addr_index    (.*, .en(write_bypass_en_up[i][k][l]),    .din (ic_b_rw_addr_up[i][k]), .dout(wb_index_hold_up[i][k][l]));         \
+                   css_mcu0_rvdffe #(``width)                             rd_data_hold_ff  (.*, .en(write_bypass_en_ff_up[i][k][l]), .din (wb_dout_pre_up[i][k]),  .dout(wb_dout_hold_up[i][k][l]));     \
                 end                                                                                                                       \
                 always_comb begin                                                                                                         \
                  any_bypass_up[i][k] = '0;                                                                                                \
@@ -326,28 +326,28 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
         logic [pt.ICACHE_NUM_WAYS-1:0][pt.ICACHE_BANKS_WAY-1:0] [pt.ICACHE_NUM_BYPASS-1:0] [71-1:0]  wb_dout_hold_up;
 
         if ($clog2(pt.ICACHE_DATA_DEPTH) == 13 )   begin : size_8192
-           `EL2_IC_DATA_SRAM(8192,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(8192,71)
         end
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 12 )   begin : size_4096
-           `EL2_IC_DATA_SRAM(4096,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(4096,71)
         end
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 11 ) begin : size_2048
-           `EL2_IC_DATA_SRAM(2048,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(2048,71)
         end
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 10 ) begin : size_1024
-           `EL2_IC_DATA_SRAM(1024,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(1024,71)
         end
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 9 ) begin : size_512
-           `EL2_IC_DATA_SRAM(512,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(512,71)
         end
          else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 8 ) begin : size_256
-           `EL2_IC_DATA_SRAM(256,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(256,71)
          end
          else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 7 ) begin : size_128
-           `EL2_IC_DATA_SRAM(128,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(128,71)
          end
          else  begin : size_64
-           `EL2_IC_DATA_SRAM(64,71)
+           `css_mcu0_EL2_IC_DATA_SRAM(64,71)
          end
       end // if (pt.ICACHE_ECC)
 
@@ -355,28 +355,28 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
         logic [pt.ICACHE_NUM_WAYS-1:0][pt.ICACHE_BANKS_WAY-1:0] [68-1:0]        wb_dout_pre_up;           // data and its bit enables
         logic [pt.ICACHE_NUM_WAYS-1:0][pt.ICACHE_BANKS_WAY-1:0] [pt.ICACHE_NUM_BYPASS-1:0] [68-1:0]  wb_dout_hold_up;
         if ($clog2(pt.ICACHE_DATA_DEPTH) == 13 )   begin : size_8192
-           `EL2_IC_DATA_SRAM(8192,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(8192,68)
         end
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 12 )   begin : size_4096
-           `EL2_IC_DATA_SRAM(4096,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(4096,68)
         end
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 11 ) begin : size_2048
-           `EL2_IC_DATA_SRAM(2048,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(2048,68)
         end
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 10 ) begin : size_1024
-           `EL2_IC_DATA_SRAM(1024,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(1024,68)
         end
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 9 ) begin : size_512
-           `EL2_IC_DATA_SRAM(512,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(512,68)
         end
          else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 8 ) begin : size_256
-           `EL2_IC_DATA_SRAM(256,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(256,68)
          end
          else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 7 ) begin : size_128
-           `EL2_IC_DATA_SRAM(128,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(128,68)
          end
          else  begin : size_64
-           `EL2_IC_DATA_SRAM(64,68)
+           `css_mcu0_EL2_IC_DATA_SRAM(64,68)
          end
       end // else: !if(pt.ICACHE_ECC)
       end // block: BANKS_WAY
@@ -400,8 +400,8 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
 
 // SRAM macros
 
-`define EL2_PACKED_IC_DATA_SRAM(depth,width,waywidth)                                                                                                 \
-            ram_be_``depth``x``width  ic_bank_sb_way_data (                                                                                           \
+`define css_mcu0_EL2_PACKED_IC_DATA_SRAM(depth,width,waywidth)                                                                                                 \
+            css_mcu0_ram_be_``depth``x``width  ic_bank_sb_way_data (                                                                                           \
                             .CLK   (clk),                                                                                                             \
                             .WE    (|ic_b_sb_wren[k]),                                                    // OR of all the ways in the bank           \
                             .WEM   (ic_b_sb_bit_en_vec[k]),                                               // 284 bits of bit enables                  \
@@ -427,7 +427,7 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
                                                                                                                                                                                                       \
                  assign wrptr_in[k] = (wrptr[k] == (pt.ICACHE_NUM_BYPASS-1)) ? '0 : (wrptr[k] + 1'd1);                                                                                                \
                                                                                                                                                                                                       \
-                 rvdffs  #(pt.ICACHE_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk), .en(|write_bypass_en[k]), .din (wrptr_in[k]), .dout(wrptr[k])) ;                                                                       \
+                 css_mcu0_rvdffs  #(pt.ICACHE_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk), .en(|write_bypass_en[k]), .din (wrptr_in[k]), .dout(wrptr[k])) ;                                                                       \
                                                                                                                                                                                                       \
                  assign ic_b_sram_en[k]              = |ic_bank_way_clken[k];                                                                                                                         \
                                                                                                                                                                                                       \
@@ -460,12 +460,12 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
                                                                                                                                                                                                       \
                    assign write_bypass_en[k][l] = ic_b_read_en[k]  &  ~any_addr_match[k] & (wrptr[k] == l);                                                                                           \
                                                                                                                                                                                                       \
-                   rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                     .din(write_bypass_en[k][l]), .dout(write_bypass_en_ff[k][l])) ;                            \
-                   rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en[k][l] | ic_b_clear_en[k][l]),   .din(~ic_b_clear_en[k][l]),  .dout(index_valid[k][l])) ;                                   \
-                   rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                     .din(sel_bypass[k][l]),      .dout(sel_bypass_ff[k][l])) ;                                 \
+                   css_mcu0_rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                     .din(write_bypass_en[k][l]), .dout(write_bypass_en_ff[k][l])) ;                            \
+                   css_mcu0_rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en[k][l] | ic_b_clear_en[k][l]),   .din(~ic_b_clear_en[k][l]),  .dout(index_valid[k][l])) ;                                   \
+                   css_mcu0_rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                     .din(sel_bypass[k][l]),      .dout(sel_bypass_ff[k][l])) ;                                 \
                                                                                                                                                                                                       \
-                   rvdffe #((31-pt.ICACHE_DATA_INDEX_LO+1)) ic_addr_index    (.*, .en(write_bypass_en[k][l]),    .din (ic_b_rw_addr[k]),      .dout(wb_index_hold[k][l]));                            \
-                   rvdffe #((``waywidth*pt.ICACHE_NUM_WAYS))        rd_data_hold_ff  (.*, .en(write_bypass_en_ff[k][l]), .din (wb_packeddout_pre[k]), .dout(wb_packeddout_hold[k][l]));                       \
+                   css_mcu0_rvdffe #((31-pt.ICACHE_DATA_INDEX_LO+1)) ic_addr_index    (.*, .en(write_bypass_en[k][l]),    .din (ic_b_rw_addr[k]),      .dout(wb_index_hold[k][l]));                            \
+                   css_mcu0_rvdffe #((``waywidth*pt.ICACHE_NUM_WAYS))        rd_data_hold_ff  (.*, .en(write_bypass_en_ff[k][l]), .din (wb_packeddout_pre[k]), .dout(wb_packeddout_hold[k][l]));                       \
                                                                                                                                                                                                       \
                 end // block: BYPASS                                                                                                                                                                  \
                                                                                                                                                                                                       \
@@ -501,73 +501,73 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
         // SRAMS with ECC (single/double detect; no correct)
         if ($clog2(pt.ICACHE_DATA_DEPTH) == 13 )   begin : size_8192
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(8192,284,71)    // 64b data + 7b ecc
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(8192,284,71)    // 64b data + 7b ecc
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(8192,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(8192,142,71)
            end // block: WAYS
         end // block: size_8192
 
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 12 )   begin : size_4096
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(4096,284,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(4096,284,71)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(4096,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(4096,142,71)
            end // block: WAYS
         end // block: size_4096
 
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 11 ) begin : size_2048
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(2048,284,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(2048,284,71)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(2048,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(2048,142,71)
            end // block: WAYS
         end // block: size_2048
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 10 ) begin : size_1024
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(1024,284,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(1024,284,71)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(1024,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(1024,142,71)
            end // block: WAYS
         end // block: size_1024
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 9 ) begin : size_512
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(512,284,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(512,284,71)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(512,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(512,142,71)
            end // block: WAYS
         end // block: size_512
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 8 ) begin : size_256
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(256,284,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(256,284,71)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(256,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(256,142,71)
            end // block: WAYS
         end // block: size_256
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 7 ) begin : size_128
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(128,284,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(128,284,71)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(128,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(128,142,71)
            end // block: WAYS
         end // block: size_128
 
         else  begin : size_64
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(64,284,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(64,284,71)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(64,142,71)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(64,142,71)
            end // block: WAYS
         end // block: size_64
 
@@ -591,73 +591,73 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
         // SRAMs with parity
         if ($clog2(pt.ICACHE_DATA_DEPTH) == 13 )   begin : size_8192
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(8192,272,68)    // 64b data + 4b parity
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(8192,272,68)    // 64b data + 4b parity
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(8192,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(8192,136,68)
            end // block: WAYS
         end // block: size_8192
 
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 12 )   begin : size_4096
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(4096,272,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(4096,272,68)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(4096,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(4096,136,68)
            end // block: WAYS
         end // block: size_4096
 
         else if ($clog2(pt.ICACHE_DATA_DEPTH) == 11 ) begin : size_2048
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(2048,272,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(2048,272,68)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(2048,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(2048,136,68)
            end // block: WAYS
         end // block: size_2048
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 10 ) begin : size_1024
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(1024,272,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(1024,272,68)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(1024,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(1024,136,68)
            end // block: WAYS
         end // block: size_1024
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 9 ) begin : size_512
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(512,272,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(512,272,68)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(512,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(512,136,68)
            end // block: WAYS
         end // block: size_512
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 8 ) begin : size_256
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(256,272,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(256,272,68)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(256,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(256,136,68)
            end // block: WAYS
         end // block: size_256
 
         else if ( $clog2(pt.ICACHE_DATA_DEPTH) == 7 ) begin : size_128
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(128,272,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(128,272,68)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(128,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(128,136,68)
            end // block: WAYS
         end // block: size_128
 
         else  begin : size_64
            if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(64,272,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(64,272,68)
            end // block: WAYS
            else   begin : WAYS
-              `EL2_PACKED_IC_DATA_SRAM(64,136,68)
+              `css_mcu0_EL2_PACKED_IC_DATA_SRAM(64,136,68)
            end // block: WAYS
         end // block: size_64
 
@@ -713,7 +713,7 @@ if (pt.ICACHE_BYPASS_ENABLE == 1) begin \
     assign bank_check_en[i]    = |ic_rd_hit[pt.ICACHE_NUM_WAYS-1:0] & ((i==0) | (~ic_cacheline_wrap_ff & (ic_b_rden_ff[pt.ICACHE_BANKS_WAY-1:0] == {pt.ICACHE_BANKS_WAY{1'b1}})));  // always check the lower address bank, and drop the upper address bank on a CL wrap
     assign wb_dout_ecc_bank[i] = wb_dout_ecc[(71*i)+70:(71*i)];
 
-   rvecc_decode_64  ecc_decode_64 (
+   css_mcu0_rvecc_decode_64  ecc_decode_64 (
                            .en               (bank_check_en[i]),
                            .din              (wb_dout_ecc_bank[i][63 : 0]),                // [134:71],  [63:0]
                            .ecc_in           (wb_dout_ecc_bank[i][70 : 64]),               // [141:135] [70:64]
@@ -769,7 +769,7 @@ else  begin : ECC0_MUX
   for (genvar i=0; i < pt.ICACHE_BANKS_WAY ; i++) begin : ic_par_error
     assign bank_check_en[i]    = |ic_rd_hit[pt.ICACHE_NUM_WAYS-1:0] & ((i==0) | (~ic_cacheline_wrap_ff & (ic_b_rden_ff[pt.ICACHE_BANKS_WAY-1:0] == {pt.ICACHE_BANKS_WAY{1'b1}})));  // always check the lower address bank, and drop the upper address bank on a CL wrap
      for (genvar j=0; j<4; j++)  begin : parity
-      rveven_paritycheck pchk (
+      css_mcu0_rveven_paritycheck pchk (
                            .data_in   (wb_dout_ecc_bank[i][16*(j+1)-1: 16*j]),
                            .parity_in (wb_dout_ecc_bank[i][64+j]),
                            .parity_err(ic_parerr_bank[i][j] )
@@ -794,10 +794,10 @@ endmodule // EL2_IC_DATA
 /////////////////////////////////////////////////
 ////// ICACHE TAG MODULE     ////////////////////
 /////////////////////////////////////////////////
-module EL2_IC_TAG
-import el2_pkg::*;
+module css_mcu0_EL2_IC_TAG
+import css_mcu0_el2_pkg::*;
  #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
      (
       input logic                                                   clk,
@@ -855,12 +855,12 @@ import el2_pkg::*;
    assign  ic_tag_wren [pt.ICACHE_NUM_WAYS-1:0]  = ic_wr_en[pt.ICACHE_NUM_WAYS-1:0] & {pt.ICACHE_NUM_WAYS{(ic_rw_addr[pt.ICACHE_BEAT_ADDR_HI:4] == {pt.ICACHE_BEAT_BITS-1{1'b1}})}} ;
    assign  ic_tag_clken[pt.ICACHE_NUM_WAYS-1:0]  = {pt.ICACHE_NUM_WAYS{ic_rd_en | clk_override}} | ic_wr_en[pt.ICACHE_NUM_WAYS-1:0] | ic_debug_wr_way_en[pt.ICACHE_NUM_WAYS-1:0] | ic_debug_rd_way_en[pt.ICACHE_NUM_WAYS-1:0];
 
-   rvdff #(1) rd_en_ff (.*, .clk(active_clk),
+   css_mcu0_rvdff #(1) rd_en_ff (.*, .clk(active_clk),
                     .din (ic_rd_en),
                     .dout(ic_rd_en_ff)) ;
 
 
-   rvdffie #(32-pt.ICACHE_TAG_LO) adr_ff (.*,
+   css_mcu0_rvdffie #(32-pt.ICACHE_TAG_LO) adr_ff (.*,
                                           .din ({ic_rw_addr[31:pt.ICACHE_TAG_LO]}),
                                           .dout({ic_rw_addr_ff[31:pt.ICACHE_TAG_LO]})
                                           );
@@ -878,7 +878,7 @@ import el2_pkg::*;
 
 if (pt.ICACHE_TAG_LO == 11) begin: SMALLEST
  if (pt.ICACHE_ECC) begin : ECC1_W
-           rvecc_encode  tag_ecc_encode (
+           css_mcu0_rvecc_encode  tag_ecc_encode (
                                   .din    ({{pt.ICACHE_TAG_LO{1'b0}}, ic_rw_addr[31:pt.ICACHE_TAG_LO]}),
                                   .ecc_out({ ic_tag_ecc[6:0]}));
 
@@ -888,7 +888,7 @@ if (pt.ICACHE_TAG_LO == 11) begin: SMALLEST
  end
 
  else begin : ECC0_W
-           rveven_paritygen #(32-pt.ICACHE_TAG_LO) pargen  (.data_in   (ic_rw_addr[31:pt.ICACHE_TAG_LO]),
+           css_mcu0_rveven_paritygen #(32-pt.ICACHE_TAG_LO) pargen  (.data_in   (ic_rw_addr[31:pt.ICACHE_TAG_LO]),
                                                  .parity_out(ic_tag_parity));
 
    assign  ic_tag_wr_data[21:0] = (ic_debug_wr_en & ic_debug_tag_array) ?
@@ -901,7 +901,7 @@ end // block: SMALLEST
 
 else begin: OTHERS
   if(pt.ICACHE_ECC) begin :ECC1_W
-           rvecc_encode  tag_ecc_encode (
+           css_mcu0_rvecc_encode  tag_ecc_encode (
                                   .din    ({{pt.ICACHE_TAG_LO{1'b0}}, ic_rw_addr[31:pt.ICACHE_TAG_LO]}),
                                   .ecc_out({ ic_tag_ecc[6:0]}));
 
@@ -912,7 +912,7 @@ else begin: OTHERS
   end
   else  begin :ECC0_W
    logic   ic_tag_parity ;
-           rveven_paritygen #(32-pt.ICACHE_TAG_LO) pargen  (.data_in   (ic_rw_addr[31:pt.ICACHE_TAG_LO]),
+           css_mcu0_rveven_paritygen #(32-pt.ICACHE_TAG_LO) pargen  (.data_in   (ic_rw_addr[31:pt.ICACHE_TAG_LO]),
                                                  .parity_out(ic_tag_parity));
    assign  ic_tag_wr_data[21:0] = (ic_debug_wr_en & ic_debug_tag_array) ?
                                   {ic_debug_wr_data[64], ic_debug_wr_data[31:11]} :
@@ -926,7 +926,7 @@ end // block: OTHERS
                                                 ic_debug_addr[pt.ICACHE_INDEX_HI: pt.ICACHE_TAG_INDEX_LO] :
                                                 ic_rw_addr[pt.ICACHE_INDEX_HI: pt.ICACHE_TAG_INDEX_LO] ;
 
-   rvdff #(pt.ICACHE_NUM_WAYS) tag_rd_wy_ff (.*, .clk(active_clk),
+   css_mcu0_rvdff #(pt.ICACHE_NUM_WAYS) tag_rd_wy_ff (.*, .clk(active_clk),
                     .din ({ic_debug_rd_way_en[pt.ICACHE_NUM_WAYS-1:0]}),
                     .dout({ic_debug_rd_way_en_ff[pt.ICACHE_NUM_WAYS-1:0]}));
 
@@ -958,8 +958,8 @@ end // block: OTHERS
     logic [pt.ICACHE_NUM_WAYS-1:0]        any_addr_match;
     logic [pt.ICACHE_NUM_WAYS-1:0]        ic_tag_clken_final;
 
-      `define EL2_IC_TAG_SRAM(depth,width)                                                                                                      \
-                                  ram_``depth``x``width  ic_way_tag (                                                                           \
+      `define css_mcu0_EL2_IC_TAG_SRAM(depth,width)                                                                                                      \
+                                  css_mcu0_ram_``depth``x``width  ic_way_tag (                                                                           \
                                 .ME(ic_tag_clken_final[i]),                                                                                     \
                                 .WE (ic_tag_wren_q[i]),                                                                                         \
                                 .D  (ic_tag_wr_data[``width-1:0]),                                                                              \
@@ -989,7 +989,7 @@ end // block: OTHERS
                                                                                                                                                                                                       \
                  assign wrptr_in[i] = (wrptr[i] == (pt.ICACHE_TAG_NUM_BYPASS-1)) ? '0 : (wrptr[i] + 1'd1);                                                                                            \
                                                                                                                                                                                                       \
-                 rvdffs  #(pt.ICACHE_TAG_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk), .en(|write_bypass_en[i]), .din (wrptr_in[i]), .dout(wrptr[i])) ;                                           \
+                 css_mcu0_rvdffs  #(pt.ICACHE_TAG_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk), .en(|write_bypass_en[i]), .din (wrptr_in[i]), .dout(wrptr[i])) ;                                           \
                                                                                                                                                                                                       \
                  assign ic_b_sram_en[i]              = ic_tag_clken[i];                                                                                                                               \
                                                                                                                                                                                                       \
@@ -1019,12 +1019,12 @@ end // block: OTHERS
                                                                                                                                                                                                       \
                    assign write_bypass_en[i][l] = ic_b_read_en[i]  &  ~any_addr_match[i] & (wrptr[i] == l);                                                                                           \
                                                                                                                                                                                                       \
-                   rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                     .din(write_bypass_en[i][l]), .dout(write_bypass_en_ff[i][l])) ;                            \
-                   rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en[i][l] | ic_b_clear_en[i][l]),         .din(~ic_b_clear_en[i][l]),  .dout(index_valid[i][l])) ;                             \
-                   rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                     .din(sel_bypass[i][l]),      .dout(sel_bypass_ff[i][l])) ;                                 \
+                   css_mcu0_rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                     .din(write_bypass_en[i][l]), .dout(write_bypass_en_ff[i][l])) ;                            \
+                   css_mcu0_rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en[i][l] | ic_b_clear_en[i][l]),         .din(~ic_b_clear_en[i][l]),  .dout(index_valid[i][l])) ;                             \
+                   css_mcu0_rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                     .din(sel_bypass[i][l]),      .dout(sel_bypass_ff[i][l])) ;                                 \
                                                                                                                                                                                                       \
-                   rvdffe #(.WIDTH(pt.ICACHE_INDEX_HI-pt.ICACHE_TAG_INDEX_LO+1),.OVERRIDE(1))  ic_addr_index   (.*, .en(write_bypass_en[i][l]),    .din (ic_b_rw_addr[i]),        .dout(wb_index_hold[i][l]));   \
-                   rvdffe #(``width)                                                           rd_data_hold_ff (.*, .en(write_bypass_en_ff[i][l]), .din (ic_tag_data_raw_pre[i][``width-1:0]), .dout(wb_dout_hold[i][l]));            \
+                   css_mcu0_rvdffe #(.WIDTH(pt.ICACHE_INDEX_HI-pt.ICACHE_TAG_INDEX_LO+1),.OVERRIDE(1))  ic_addr_index   (.*, .en(write_bypass_en[i][l]),    .din (ic_b_rw_addr[i]),        .dout(wb_index_hold[i][l]));   \
+                   css_mcu0_rvdffe #(``width)                                                           rd_data_hold_ff (.*, .en(write_bypass_en_ff[i][l]), .din (ic_tag_data_raw_pre[i][``width-1:0]), .dout(wb_dout_hold[i][l]));            \
                                                                                                                                                                                                       \
                 end // block: BYPASS                                                                                                                                                                  \
                                                                                                                                                                                                       \
@@ -1051,34 +1051,34 @@ end // block: OTHERS
       logic [pt.ICACHE_NUM_WAYS-1:0] [pt.ICACHE_TAG_NUM_BYPASS-1:0][25 :0] wb_dout_hold;
 
       if (pt.ICACHE_TAG_DEPTH == 32)   begin : size_32
-                 `EL2_IC_TAG_SRAM(32,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(32,26)
       end // if (pt.ICACHE_TAG_DEPTH == 32)
       if (pt.ICACHE_TAG_DEPTH == 64)   begin : size_64
-                 `EL2_IC_TAG_SRAM(64,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(64,26)
       end // if (pt.ICACHE_TAG_DEPTH == 64)
       if (pt.ICACHE_TAG_DEPTH == 128)   begin : size_128
-                 `EL2_IC_TAG_SRAM(128,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(128,26)
       end // if (pt.ICACHE_TAG_DEPTH == 128)
        if (pt.ICACHE_TAG_DEPTH == 256)   begin : size_256
-                 `EL2_IC_TAG_SRAM(256,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(256,26)
        end // if (pt.ICACHE_TAG_DEPTH == 256)
        if (pt.ICACHE_TAG_DEPTH == 512)   begin : size_512
-                 `EL2_IC_TAG_SRAM(512,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(512,26)
        end // if (pt.ICACHE_TAG_DEPTH == 512)
        if (pt.ICACHE_TAG_DEPTH == 1024)   begin : size_1024
-                 `EL2_IC_TAG_SRAM(1024,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(1024,26)
        end // if (pt.ICACHE_TAG_DEPTH == 1024)
        if (pt.ICACHE_TAG_DEPTH == 2048)   begin : size_2048
-                 `EL2_IC_TAG_SRAM(2048,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(2048,26)
        end // if (pt.ICACHE_TAG_DEPTH == 2048)
        if (pt.ICACHE_TAG_DEPTH == 4096)   begin  : size_4096
-                 `EL2_IC_TAG_SRAM(4096,26)
+                 `css_mcu0_EL2_IC_TAG_SRAM(4096,26)
        end // if (pt.ICACHE_TAG_DEPTH == 4096)
 
          assign w_tout[i][31:pt.ICACHE_TAG_LO] = ic_tag_data_raw[i][31-pt.ICACHE_TAG_LO:0] ;
          assign w_tout[i][36:32]              = ic_tag_data_raw[i][25:21] ;
 
-         rvecc_decode  ecc_decode (
+         css_mcu0_rvecc_decode  ecc_decode (
                            .en(~dec_tlu_core_ecc_disable & ic_rd_en_ff),
                            .sed_ded ( 1'b1 ),    // 1 : means only detection
                            .din({11'b0,ic_tag_data_raw[i][20:0]}),
@@ -1095,34 +1095,34 @@ end // block: OTHERS
       assign ic_tag_data_raw_pre[i][25:22] = '0 ;
 
       if (pt.ICACHE_TAG_DEPTH == 32)   begin : size_32
-                 `EL2_IC_TAG_SRAM(32,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(32,22)
       end // if (pt.ICACHE_TAG_DEPTH == 32)
       if (pt.ICACHE_TAG_DEPTH == 64)   begin : size_64
-                 `EL2_IC_TAG_SRAM(64,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(64,22)
       end // if (pt.ICACHE_TAG_DEPTH == 64)
       if (pt.ICACHE_TAG_DEPTH == 128)   begin : size_128
-                 `EL2_IC_TAG_SRAM(128,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(128,22)
       end // if (pt.ICACHE_TAG_DEPTH == 128)
        if (pt.ICACHE_TAG_DEPTH == 256)   begin : size_256
-                 `EL2_IC_TAG_SRAM(256,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(256,22)
        end // if (pt.ICACHE_TAG_DEPTH == 256)
        if (pt.ICACHE_TAG_DEPTH == 512)   begin : size_512
-                 `EL2_IC_TAG_SRAM(512,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(512,22)
        end // if (pt.ICACHE_TAG_DEPTH == 512)
        if (pt.ICACHE_TAG_DEPTH == 1024)   begin : size_1024
-                 `EL2_IC_TAG_SRAM(1024,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(1024,22)
        end // if (pt.ICACHE_TAG_DEPTH == 1024)
        if (pt.ICACHE_TAG_DEPTH == 2048)   begin : size_2048
-                 `EL2_IC_TAG_SRAM(2048,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(2048,22)
        end // if (pt.ICACHE_TAG_DEPTH == 2048)
        if (pt.ICACHE_TAG_DEPTH == 4096)   begin  : size_4096
-                 `EL2_IC_TAG_SRAM(4096,22)
+                 `css_mcu0_EL2_IC_TAG_SRAM(4096,22)
        end // if (pt.ICACHE_TAG_DEPTH == 4096)
 
          assign w_tout[i][31:pt.ICACHE_TAG_LO] = ic_tag_data_raw[i][31-pt.ICACHE_TAG_LO:0] ;
          assign w_tout[i][32]                 = ic_tag_data_raw[i][21] ;
 
-         rveven_paritycheck #(32-pt.ICACHE_TAG_LO) parcheck(.data_in   (w_tout[i][31:pt.ICACHE_TAG_LO]),
+         css_mcu0_rveven_paritycheck #(32-pt.ICACHE_TAG_LO) parcheck(.data_in   (w_tout[i][31:pt.ICACHE_TAG_LO]),
                                                    .parity_in (w_tout[i][32]),
                                                    .parity_err(ic_tag_way_perr[i]));
       end // else: !if(pt.ICACHE_ECC)
@@ -1160,8 +1160,8 @@ end // block: OTHERS
     logic                                any_addr_match;
     logic                                ic_tag_clken_final;
 
-`define EL2_IC_TAG_PACKED_SRAM(depth,width)                                                               \
-                  ram_be_``depth``x``width  ic_way_tag (                                                   \
+`define css_mcu0_EL2_IC_TAG_PACKED_SRAM(depth,width)                                                               \
+                  css_mcu0_ram_be_``depth``x``width  ic_way_tag (                                                   \
                                 .ME  ( ic_tag_clken_final),                                                \
                                 .WE  (|ic_tag_wren_q[pt.ICACHE_NUM_WAYS-1:0]),                             \
                                 .WEM (ic_tag_wren_biten_vec[``width-1:0]),                                 \
@@ -1190,7 +1190,7 @@ end // block: OTHERS
                                                                                                                                                                                                       \
                  assign wrptr_in = (wrptr == (pt.ICACHE_TAG_NUM_BYPASS-1)) ? '0 : (wrptr + 1'd1);                                                                                                     \
                                                                                                                                                                                                       \
-                 rvdffs  #(pt.ICACHE_TAG_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk), .en(|write_bypass_en), .din (wrptr_in), .dout(wrptr)) ;                                                    \
+                 css_mcu0_rvdffs  #(pt.ICACHE_TAG_NUM_BYPASS_WIDTH)  wrptr_ff(.*, .clk(active_clk), .en(|write_bypass_en), .din (wrptr_in), .dout(wrptr)) ;                                                    \
                                                                                                                                                                                                       \
                  assign ic_b_sram_en              = |ic_tag_clken;                                                                                                                                    \
                                                                                                                                                                                                       \
@@ -1220,12 +1220,12 @@ end // block: OTHERS
                                                                                                                                                                                                       \
                    assign write_bypass_en[l] = ic_b_read_en  &  ~any_addr_match & (wrptr == l);                                                                                                       \
                                                                                                                                                                                                       \
-                   rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                     .din(write_bypass_en[l]), .dout(write_bypass_en_ff[l])) ;                                  \
-                   rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en[l] | ic_b_clear_en[l]),         .din(~ic_b_clear_en[l]),  .dout(index_valid[l])) ;                                         \
-                   rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                     .din(sel_bypass[l]),      .dout(sel_bypass_ff[l])) ;                                               \
+                   css_mcu0_rvdff  #(1)  write_bypass_ff (.*, .clk(active_clk),                                                     .din(write_bypass_en[l]), .dout(write_bypass_en_ff[l])) ;                                  \
+                   css_mcu0_rvdffs #(1)  index_val_ff    (.*, .clk(active_clk), .en(write_bypass_en[l] | ic_b_clear_en[l]),         .din(~ic_b_clear_en[l]),  .dout(index_valid[l])) ;                                         \
+                   css_mcu0_rvdff  #(1)  sel_hold_ff     (.*, .clk(active_clk),                                                     .din(sel_bypass[l]),      .dout(sel_bypass_ff[l])) ;                                               \
                                                                                                                                                                                                       \
-                   rvdffe #(.WIDTH(pt.ICACHE_INDEX_HI-pt.ICACHE_TAG_INDEX_LO+1),.OVERRIDE(1)) ic_addr_index    (.*, .en(write_bypass_en[l]),    .din (ic_b_rw_addr),               .dout(wb_index_hold[l]));          \
-                   rvdffe #(``width)                                                          rd_data_hold_ff  (.*, .en(write_bypass_en_ff[l]), .din (ic_tag_data_raw_packed_pre[``width-1:0]), .dout(wb_packeddout_hold[l]));        \
+                   css_mcu0_rvdffe #(.WIDTH(pt.ICACHE_INDEX_HI-pt.ICACHE_TAG_INDEX_LO+1),.OVERRIDE(1)) ic_addr_index    (.*, .en(write_bypass_en[l]),    .din (ic_b_rw_addr),               .dout(wb_index_hold[l]));          \
+                   css_mcu0_rvdffe #(``width)                                                          rd_data_hold_ff  (.*, .en(write_bypass_en_ff[l]), .din (ic_tag_data_raw_packed_pre[``width-1:0]), .dout(wb_packeddout_hold[l]));        \
                                                                                                                                                                                                       \
                 end // block: BYPASS                                                                                                                                                                  \
                                                                                                                                                                                                       \
@@ -1255,74 +1255,74 @@ end // block: OTHERS
      end
       if (pt.ICACHE_TAG_DEPTH == 32)   begin : size_32
         if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(32,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(32,104)
         end // block: WAYS
       else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(32,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(32,52)
         end // block: WAYS
       end // if (pt.ICACHE_TAG_DEPTH == 32
 
       if (pt.ICACHE_TAG_DEPTH == 64)   begin : size_64
         if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(64,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(64,104)
         end // block: WAYS
       else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(64,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(64,52)
         end // block: WAYS
       end // block: size_64
 
       if (pt.ICACHE_TAG_DEPTH == 128)   begin : size_128
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(128,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(128,104)
       end // block: WAYS
       else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(128,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(128,52)
       end // block: WAYS
 
       end // block: size_128
 
       if (pt.ICACHE_TAG_DEPTH == 256)   begin : size_256
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(256,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(256,104)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(256,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(256,52)
         end // block: WAYS
       end // block: size_256
 
       if (pt.ICACHE_TAG_DEPTH == 512)   begin : size_512
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(512,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(512,104)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(512,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(512,52)
         end // block: WAYS
       end // block: size_512
 
       if (pt.ICACHE_TAG_DEPTH == 1024)   begin : size_1024
          if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(1024,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(1024,104)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(1024,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(1024,52)
         end // block: WAYS
       end // block: size_1024
 
       if (pt.ICACHE_TAG_DEPTH == 2048)   begin : size_2048
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(2048,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(2048,104)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(2048,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(2048,52)
         end // block: WAYS
       end // block: size_2048
 
       if (pt.ICACHE_TAG_DEPTH == 4096)   begin  : size_4096
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(4096,104)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(4096,104)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(4096,52)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(4096,52)
         end // block: WAYS
       end // block: size_4096
 
@@ -1330,7 +1330,7 @@ end // block: OTHERS
           assign ic_tag_data_raw[i]  = ic_tag_data_raw_packed[(26*i)+25:26*i];
           assign w_tout[i][31:pt.ICACHE_TAG_LO] = ic_tag_data_raw[i][31-pt.ICACHE_TAG_LO:0] ;
           assign w_tout[i][36:32]              = ic_tag_data_raw[i][25:21] ;
-          rvecc_decode  ecc_decode (
+          css_mcu0_rvecc_decode  ecc_decode (
                            .en(~dec_tlu_core_ecc_disable & ic_rd_en_ff),
                            .sed_ded ( 1'b1 ),    // 1 : means only detection
                            .din({11'b0,ic_tag_data_raw[i][20:0]}),
@@ -1354,74 +1354,74 @@ end // block: OTHERS
      end
       if (pt.ICACHE_TAG_DEPTH == 32)   begin : size_32
         if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(32,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(32,88)
         end // block: WAYS
       else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(32,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(32,44)
         end // block: WAYS
       end // if (pt.ICACHE_TAG_DEPTH == 32
 
       if (pt.ICACHE_TAG_DEPTH == 64)   begin : size_64
         if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(64,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(64,88)
         end // block: WAYS
       else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(64,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(64,44)
         end // block: WAYS
       end // block: size_64
 
       if (pt.ICACHE_TAG_DEPTH == 128)   begin : size_128
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(128,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(128,88)
       end // block: WAYS
       else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(128,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(128,44)
       end // block: WAYS
 
       end // block: size_128
 
       if (pt.ICACHE_TAG_DEPTH == 256)   begin : size_256
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(256,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(256,88)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(256,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(256,44)
         end // block: WAYS
       end // block: size_256
 
       if (pt.ICACHE_TAG_DEPTH == 512)   begin : size_512
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(512,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(512,88)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(512,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(512,44)
         end // block: WAYS
       end // block: size_512
 
       if (pt.ICACHE_TAG_DEPTH == 1024)   begin : size_1024
          if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(1024,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(1024,88)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(1024,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(1024,44)
         end // block: WAYS
       end // block: size_1024
 
       if (pt.ICACHE_TAG_DEPTH == 2048)   begin : size_2048
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(2048,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(2048,88)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(2048,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(2048,44)
         end // block: WAYS
       end // block: size_2048
 
       if (pt.ICACHE_TAG_DEPTH == 4096)   begin  : size_4096
        if (pt.ICACHE_NUM_WAYS == 4) begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(4096,88)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(4096,88)
         end // block: WAYS
        else begin : WAYS
-                 `EL2_IC_TAG_PACKED_SRAM(4096,44)
+                 `css_mcu0_EL2_IC_TAG_PACKED_SRAM(4096,44)
         end // block: WAYS
       end // block: size_4096
 
@@ -1432,7 +1432,7 @@ end // block: OTHERS
           assign w_tout[i][36:33]              = '0 ;
 
 
-          rveven_paritycheck #(32-pt.ICACHE_TAG_LO) parcheck(.data_in   (w_tout[i][31:pt.ICACHE_TAG_LO]),
+          css_mcu0_rveven_paritycheck #(32-pt.ICACHE_TAG_LO) parcheck(.data_in   (w_tout[i][31:pt.ICACHE_TAG_LO]),
                                                    .parity_in (w_tout[i][32]),
                                                    .parity_err(ic_tag_way_perr[i]));
       end

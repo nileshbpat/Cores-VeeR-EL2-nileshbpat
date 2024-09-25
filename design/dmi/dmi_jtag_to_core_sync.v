@@ -17,12 +17,12 @@
 //  Copyright Western Digital, 2019
 //  Owner : Alex Grobman
 //  Description:  
-//                This module Synchronizes the signals between JTAG (TCK) and
+//                This module css_mcu0_Synchronizes the signals between JTAG (TCK) and
 //                processor (Core_clk)
 //
 //-------------------------------------------------------------------------------------
 
-module dmi_jtag_to_core_sync (
+module css_mcu0_dmi_jtag_to_core_sync (
 // JTAG signals
 input       rd_en,      // 1 bit  Read Enable from JTAG
 input       wr_en,      // 1 bit  Write enable from JTAG

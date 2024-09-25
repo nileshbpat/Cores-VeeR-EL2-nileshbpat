@@ -18,10 +18,10 @@
 //********************************************************************************
 // Function: Instruction aligner
 //********************************************************************************
-module el2_ifu_aln_ctl
-import el2_pkg::*;
+module css_mcu0_el2_ifu_aln_ctl
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
 
@@ -204,28 +204,28 @@ import el2_pkg::*;
 
    assign error_stall_in = (error_stall | ifu_async_error_start) & ~exu_flush_final;
 
-   rvdff #(.WIDTH(7))  bundle1ff (.*,
+   css_mcu0_rvdff #(.WIDTH(7))  bundle1ff (.*,
                                   .clk(active_clk),
                                   .din ({wrptr_in[1:0],rdptr_in[1:0],q2off_in,q1off_in,q0off_in}),
                                   .dout({wrptr[1:0],   rdptr[1:0],   q2off,   q1off,   q0off})
                                   );
 
-   rvdffie #(.WIDTH(7),.OVERRIDE(1))  bundle2ff (.*,
+   css_mcu0_rvdffie #(.WIDTH(7),.OVERRIDE(1))  bundle2ff (.*,
                                                  .din ({error_stall_in,f2val_in[1:0],f1val_in[1:0],f0val_in[1:0]}),
                                                  .dout({error_stall,   f2val[1:0],   f1val[1:0],   f0val[1:0]   })
                                                  );
 
 if(pt.BTB_ENABLE==1) begin : genblock1
-   rvdffe #(BRDATA_SIZE)  brdata2ff   (.*, .clk(clk), .en(qwen[2]),        .din(brdata_in[BRDATA_SIZE-1:0]), .dout(brdata2[BRDATA_SIZE-1:0]));
-   rvdffe #(BRDATA_SIZE)  brdata1ff   (.*, .clk(clk), .en(qwen[1]),        .din(brdata_in[BRDATA_SIZE-1:0]), .dout(brdata1[BRDATA_SIZE-1:0]));
-   rvdffe #(BRDATA_SIZE)  brdata0ff   (.*, .clk(clk), .en(qwen[0]),        .din(brdata_in[BRDATA_SIZE-1:0]), .dout(brdata0[BRDATA_SIZE-1:0]));
-   rvdffe #(MSIZE)        misc2ff     (.*, .clk(clk), .en(qwen[2]),        .din(misc_data_in[MHI:0]),        .dout(misc2[MHI:0]));
-   rvdffe #(MSIZE)        misc1ff     (.*, .clk(clk), .en(qwen[1]),        .din(misc_data_in[MHI:0]),        .dout(misc1[MHI:0]));
-   rvdffe #(MSIZE)        misc0ff     (.*, .clk(clk), .en(qwen[0]),        .din(misc_data_in[MHI:0]),        .dout(misc0[MHI:0]));
+   css_mcu0_rvdffe #(BRDATA_SIZE)  brdata2ff   (.*, .clk(clk), .en(qwen[2]),        .din(brdata_in[BRDATA_SIZE-1:0]), .dout(brdata2[BRDATA_SIZE-1:0]));
+   css_mcu0_rvdffe #(BRDATA_SIZE)  brdata1ff   (.*, .clk(clk), .en(qwen[1]),        .din(brdata_in[BRDATA_SIZE-1:0]), .dout(brdata1[BRDATA_SIZE-1:0]));
+   css_mcu0_rvdffe #(BRDATA_SIZE)  brdata0ff   (.*, .clk(clk), .en(qwen[0]),        .din(brdata_in[BRDATA_SIZE-1:0]), .dout(brdata0[BRDATA_SIZE-1:0]));
+   css_mcu0_rvdffe #(MSIZE)        misc2ff     (.*, .clk(clk), .en(qwen[2]),        .din(misc_data_in[MHI:0]),        .dout(misc2[MHI:0]));
+   css_mcu0_rvdffe #(MSIZE)        misc1ff     (.*, .clk(clk), .en(qwen[1]),        .din(misc_data_in[MHI:0]),        .dout(misc1[MHI:0]));
+   css_mcu0_rvdffe #(MSIZE)        misc0ff     (.*, .clk(clk), .en(qwen[0]),        .din(misc_data_in[MHI:0]),        .dout(misc0[MHI:0]));
 end
 else begin : genblock1
 
-   rvdffie #((MSIZE*3)+(BRDATA_SIZE*3))    miscff      (.*,
+   css_mcu0_rvdffie #((MSIZE*3)+(BRDATA_SIZE*3))    miscff      (.*,
                                                         .din({qwen[2] ? {misc_data_in[MHI:0], brdata_in[BRDATA_SIZE-1:0]} : {misc2[MHI:0], brdata2[BRDATA_SIZE-1:0]},
                                                               qwen[1] ? {misc_data_in[MHI:0], brdata_in[BRDATA_SIZE-1:0]} : {misc1[MHI:0], brdata1[BRDATA_SIZE-1:0]},
                                                               qwen[0] ? {misc_data_in[MHI:0], brdata_in[BRDATA_SIZE-1:0]} : {misc0[MHI:0], brdata0[BRDATA_SIZE-1:0]}}),
@@ -237,13 +237,13 @@ end
 
   logic [31:1] q2pc, q1pc, q0pc;
 
-   rvdffe #(31)           q2pcff        (.*, .clk(clk), .en(qwen[2]),        .din(ifu_fetch_pc[31:1]),     .dout(q2pc[31:1]));
-   rvdffe #(31)           q1pcff        (.*, .clk(clk), .en(qwen[1]),        .din(ifu_fetch_pc[31:1]),     .dout(q1pc[31:1]));
-   rvdffe #(31)           q0pcff        (.*, .clk(clk), .en(qwen[0]),        .din(ifu_fetch_pc[31:1]),     .dout(q0pc[31:1]));
+   css_mcu0_rvdffe #(31)           q2pcff        (.*, .clk(clk), .en(qwen[2]),        .din(ifu_fetch_pc[31:1]),     .dout(q2pc[31:1]));
+   css_mcu0_rvdffe #(31)           q1pcff        (.*, .clk(clk), .en(qwen[1]),        .din(ifu_fetch_pc[31:1]),     .dout(q1pc[31:1]));
+   css_mcu0_rvdffe #(31)           q0pcff        (.*, .clk(clk), .en(qwen[0]),        .din(ifu_fetch_pc[31:1]),     .dout(q0pc[31:1]));
 
-   rvdffe #(32)           q2ff        (.*, .clk(clk), .en(qwen[2]),        .din(ifu_fetch_data_f[31:0]),     .dout(q2[31:0]));
-   rvdffe #(32)           q1ff        (.*, .clk(clk), .en(qwen[1]),        .din(ifu_fetch_data_f[31:0]),     .dout(q1[31:0]));
-   rvdffe #(32)           q0ff        (.*, .clk(clk), .en(qwen[0]),        .din(ifu_fetch_data_f[31:0]),     .dout(q0[31:0]));
+   css_mcu0_rvdffe #(32)           q2ff        (.*, .clk(clk), .en(qwen[2]),        .din(ifu_fetch_data_f[31:0]),     .dout(q2[31:0]));
+   css_mcu0_rvdffe #(32)           q1ff        (.*, .clk(clk), .en(qwen[1]),        .din(ifu_fetch_data_f[31:0]),     .dout(q1[31:0]));
+   css_mcu0_rvdffe #(32)           q0ff        (.*, .clk(clk), .en(qwen[0]),        .din(ifu_fetch_data_f[31:0]),     .dout(q0[31:0]));
 
 
    // new queue control logic
@@ -577,9 +577,9 @@ if(pt.BTB_ENABLE==1) begin : genblock2
 
    // if you detect br does not start on instruction boundary
 
-   el2_btb_addr_hash #(.pt(pt)) firsthash (.pc(firstpc [pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]),
+   css_mcu0_el2_btb_addr_hash #(.pt(pt)) firsthash (.pc(firstpc [pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]),
                                             .hash(firstpc_hash [pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
-   el2_btb_addr_hash #(.pt(pt)) secondhash(.pc(secondpc[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]),
+   css_mcu0_el2_btb_addr_hash #(.pt(pt)) secondhash(.pc(secondpc[pt.BTB_INDEX3_HI:pt.BTB_INDEX1_LO]),
                                             .hash(secondpc_hash[pt.BTB_ADDR_HI:pt.BTB_ADDR_LO]));
 
    if(pt.BTB_FULLYA) begin
@@ -588,15 +588,15 @@ if(pt.BTB_ENABLE==1) begin : genblock2
    end
    else begin
       if(pt.BTB_BTAG_FOLD) begin : btbfold
-         el2_btb_tag_hash_fold #(.pt(pt)) first_brhash (.pc(firstpc [pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
+         css_mcu0_el2_btb_tag_hash_fold #(.pt(pt)) first_brhash (.pc(firstpc [pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
                                                          .hash(firstbrtag_hash [pt.BTB_BTAG_SIZE-1:0]));
-         el2_btb_tag_hash_fold #(.pt(pt)) second_brhash(.pc(secondpc[pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
+         css_mcu0_el2_btb_tag_hash_fold #(.pt(pt)) second_brhash(.pc(secondpc[pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
                                                          .hash(secondbrtag_hash[pt.BTB_BTAG_SIZE-1:0]));
       end
       else begin : btbfold
-         el2_btb_tag_hash #(.pt(pt)) first_brhash (.pc(firstpc [pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
+         css_mcu0_el2_btb_tag_hash #(.pt(pt)) first_brhash (.pc(firstpc [pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
                                                     .hash(firstbrtag_hash [pt.BTB_BTAG_SIZE-1:0]));
-         el2_btb_tag_hash #(.pt(pt)) second_brhash(.pc(secondpc[pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
+         css_mcu0_el2_btb_tag_hash #(.pt(pt)) second_brhash(.pc(secondpc[pt.BTB_ADDR_HI+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE+pt.BTB_BTAG_SIZE:pt.BTB_ADDR_HI+1]),
                                                     .hash(secondbrtag_hash[pt.BTB_BTAG_SIZE-1:0]));
       end
    end // else: !if(pt.BTB_FULLYA)
@@ -669,7 +669,7 @@ end // else: !if(pt.BTB_ENABLE==1)
    // decompress
 
    // quiet inputs for 4B inst
-   el2_ifu_compress_ctl compress0 (.din((first2B) ? aligndata[15:0] : '0), .dout(uncompress0[31:0]));
+   css_mcu0_el2_ifu_compress_ctl compress0 (.din((first2B) ? aligndata[15:0] : '0), .dout(uncompress0[31:0]));
 
 
 

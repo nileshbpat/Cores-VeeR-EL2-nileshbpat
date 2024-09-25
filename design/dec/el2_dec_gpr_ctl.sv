@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module el2_dec_gpr_ctl
-import el2_pkg::*;
+module css_mcu0_el2_dec_gpr_ctl
+import css_mcu0_el2_pkg::*;
 #(
-   `include "el2_param.vh"
+   `include "css_mcu0_el2_param.vh"
  )  (
     input logic [4:0]  raddr0,       // logical read addresses
     input logic [4:0]  raddr1,
@@ -50,7 +50,7 @@ import el2_pkg::*;
    // GPR Write Enables
    assign gpr_wr_en[31:1] = (w0v[31:1] | w1v[31:1] | w2v[31:1]);
    for ( genvar j=1; j<32; j++ )  begin : gpr
-      rvdffe #(32) gprff (.*, .en(gpr_wr_en[j]), .din(gpr_in[j][31:0]), .dout(gpr_out[j][31:0]));
+      css_mcu0_rvdffe #(32) gprff (.*, .en(gpr_wr_en[j]), .din(gpr_in[j][31:0]), .dout(gpr_out[j][31:0]));
    end : gpr
 
    // the read out

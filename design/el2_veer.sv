@@ -20,10 +20,10 @@
 // Comments:
 //
 //********************************************************************************
-module el2_veer
-import el2_pkg::*;
+module css_mcu0_el2_veer
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
    input logic                  clk,
@@ -760,8 +760,8 @@ import el2_pkg::*;
    logic                   dbg_cmd_write;             // 1: write command; 0: read_command
    logic [1:0]             dbg_cmd_type;              // 0:gpr 1:csr 2: memory
    logic [1:0]             dbg_cmd_size;              // size of the abstract mem access debug command
-   logic                   dbg_halt_req;              // Sticky signal indicating that the debug module wants to start the entering of debug mode ( start the halting sequence )
-   logic                   dbg_resume_req;            // Sticky signal indicating that the debug module wants to resume from debug mode
+   logic                   dbg_halt_req;              // Sticky signal indicating that the debug module css_mcu0_wants to start the entering of debug mode ( start the halting sequence )
+   logic                   dbg_resume_req;            // Sticky signal indicating that the debug module css_mcu0_wants to resume from debug mode
    logic                   dbg_core_rst_l;            // Core reset from DM
 
    logic                   core_dbg_cmd_done;         // Final muxed cmd done to debug
@@ -846,19 +846,19 @@ import el2_pkg::*;
 
    assign active_state = (~(halt_state | pause_state) | dec_tlu_flush_lower_r | dec_tlu_flush_lower_wb)  | dec_tlu_misc_clk_override;
 
-   rvoclkhdr free_cg2   ( .clk(clk), .en(1'b1),         .l1clk(free_l2clk), .* );
-   rvoclkhdr active_cg2 ( .clk(clk), .en(active_state), .l1clk(active_l2clk), .* );
+   css_mcu0_rvoclkhdr free_cg2   ( .clk(clk), .en(1'b1),         .l1clk(free_l2clk), .* );
+   css_mcu0_rvoclkhdr active_cg2 ( .clk(clk), .en(active_state), .l1clk(active_l2clk), .* );
 
 // all other clock headers are 1st level
-   rvoclkhdr free_cg1   ( .clk(free_l2clk),     .en(1'b1), .l1clk(free_clk), .* );
-   rvoclkhdr active_cg1 ( .clk(active_l2clk),   .en(1'b1), .l1clk(active_clk), .* );
+   css_mcu0_rvoclkhdr free_cg1   ( .clk(free_l2clk),     .en(1'b1), .l1clk(free_clk), .* );
+   css_mcu0_rvoclkhdr active_cg1 ( .clk(active_l2clk),   .en(1'b1), .l1clk(active_clk), .* );
 
 
    assign core_dbg_cmd_done = dma_dbg_cmd_done | dec_dbg_cmd_done;
    assign core_dbg_cmd_fail = dma_dbg_cmd_fail | dec_dbg_cmd_fail;
    assign core_dbg_rddata[31:0] = dma_dbg_cmd_done ? dma_dbg_rddata[31:0] : dec_dbg_rddata[31:0];
 
-   el2_dbg #(.pt(pt)) dbg (
+   css_mcu0_el2_dbg #(.pt(pt)) dbg (
       .rst_l(core_rst_l),
       .clk(free_l2clk),
       .clk_override(dec_tlu_misc_clk_override),
@@ -888,7 +888,7 @@ import el2_pkg::*;
 
    // Operating privilege mode, 0 - machine, 1 - user
    logic priv_mode;
-   // Effective privilege mode, 0 - machine, 1 - user (driven in el2_dec_tlu_ctl.sv)
+   // Effective privilege mode, 0 - machine, 1 - user (driven in css_mcu0_el2_dec_tlu_ctl.sv)
    logic priv_mode_eff;
    // Next privilege mode
    logic priv_mode_ns;
@@ -898,7 +898,7 @@ import el2_pkg::*;
 `endif
 
    // fetch
-   el2_ifu #(.pt(pt)) ifu (
+   css_mcu0_el2_ifu #(.pt(pt)) ifu (
                             .clk(active_l2clk),
                             .rst_l(core_rst_l),
                             .dec_tlu_flush_err_wb       (dec_tlu_flush_err_r      ),
@@ -921,20 +921,20 @@ import el2_pkg::*;
    assign iccm_ecc_single_error = ifu_iccm_rd_ecc_single_err || ifu_iccm_dma_rd_ecc_single_err;
    assign iccm_ecc_double_error = ifu_iccm_rd_ecc_double_err;
 
-   el2_dec #(.pt(pt)) dec (
+   css_mcu0_el2_dec #(.pt(pt)) dec (
                             .clk(active_l2clk),
                             .dbg_cmd_wrdata(dbg_cmd_wrdata[1:0]),
                             .rst_l(core_rst_l),
                             .*
                             );
 
-   el2_exu #(.pt(pt)) exu (
+   css_mcu0_el2_exu #(.pt(pt)) exu (
                             .clk(active_l2clk),
                             .rst_l(core_rst_l),
                             .*
                             );
 
-   el2_lsu #(.pt(pt)) lsu (
+   css_mcu0_el2_lsu #(.pt(pt)) lsu (
                             .clk(active_l2clk),
                             .rst_l(core_rst_l),
                             .clk_override(dec_tlu_lsu_clk_override),
@@ -961,7 +961,7 @@ import el2_pkg::*;
    assign dccm_ecc_single_error = lsu_dccm_rd_ecc_single_err;
    assign dccm_ecc_double_error = lsu_dccm_rd_ecc_double_err;
 
-   el2_pic_ctrl  #(.pt(pt)) pic_ctrl_inst (
+   css_mcu0_el2_pic_ctrl  #(.pt(pt)) pic_ctrl_inst (
                                             .clk(free_l2clk),
                                             .clk_override(dec_tlu_pic_clk_override),
                                             .io_clk_override(dec_tlu_picio_clk_override),
@@ -974,7 +974,7 @@ import el2_pkg::*;
                                             .rst_l(core_rst_l),
                                             .*);
 
-   el2_dma_ctrl #(.pt(pt)) dma_ctrl (
+   css_mcu0_el2_dma_ctrl #(.pt(pt)) dma_ctrl (
                                       .clk(free_l2clk),
                                       .rst_l(core_rst_l),
                                       .clk_override(dec_tlu_misc_clk_override),
@@ -1008,7 +1008,7 @@ import el2_pkg::*;
   assign pmp_chan_type[2] = lsu_pmp_we ? WRITE : (lsu_pmp_re ? READ : NONE);
   assign lsu_pmp_error_end = pmp_chan_err[2];
 
-  el2_pmp #(
+  css_mcu0_el2_pmp #(
       .PMP_CHANNELS(3),
       .pt(pt)
   ) pmp (
@@ -1020,7 +1020,7 @@ import el2_pkg::*;
    if (pt.BUILD_AHB_LITE == 1) begin: Gen_AXI_To_AHB
 
       // AXI4 -> AHB Gasket for LSU
-      axi4_to_ahb #(.pt(pt),
+      css_mcu0_axi4_to_ahb #(.pt(pt),
                     .TAG(pt.LSU_BUS_TAG)) lsu_axi4_to_ahb (
 
          .clk(free_l2clk),
@@ -1081,7 +1081,7 @@ import el2_pkg::*;
          .*
       );
 
-      axi4_to_ahb #(.pt(pt),
+      css_mcu0_axi4_to_ahb #(.pt(pt),
                     .TAG(pt.IFU_BUS_TAG)) ifu_axi4_to_ahb (
          .clk(free_l2clk),
          .free_clk(free_clk),
@@ -1141,7 +1141,7 @@ import el2_pkg::*;
       );
 
       // AXI4 -> AHB Gasket for System Bus
-      axi4_to_ahb #(.pt(pt),
+      css_mcu0_axi4_to_ahb #(.pt(pt),
                     .TAG(pt.SB_BUS_TAG)) sb_axi4_to_ahb (
          .clk(free_l2clk),
          .free_clk(free_clk),
@@ -1201,7 +1201,7 @@ import el2_pkg::*;
       );
 
       //AHB -> AXI4 Gasket for DMA
-      ahb_to_axi4 #(.pt(pt),
+      css_mcu0_ahb_to_axi4 #(.pt(pt),
                     .TAG(pt.DMA_BUS_TAG)) dma_ahb_to_axi4 (
          .clk(free_l2clk),
          .rst_l(core_rst_l),

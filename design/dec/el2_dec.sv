@@ -27,10 +27,10 @@
 //
 //********************************************************************************
 
-module el2_dec
-  import el2_pkg::*;
+module css_mcu0_el2_dec
+  import css_mcu0_el2_pkg::*;
 #(
-    `include "el2_param.vh"
+    `include "css_mcu0_el2_param.vh"
 ) (
     input logic clk,                          // Clock only while core active.  Through one clock header.  For flops with    second clock header built in.  Connected to ACTIVE_L2CLK.
     input logic active_clk,                   // Clock only while core active.  Through two clock headers. For flops without second clock header built in.
@@ -413,16 +413,16 @@ module el2_dec
   assign dec_dbg_rddata[31:0] = dec_i0_wdata_r[31:0];
 
 
-  el2_dec_ib_ctl #(.pt(pt)) instbuff (.*);
+  css_mcu0_el2_dec_ib_ctl #(.pt(pt)) instbuff (.*);
 
 
-  el2_dec_decode_ctl #(.pt(pt)) decode (.*);
+  css_mcu0_el2_dec_decode_ctl #(.pt(pt)) decode (.*);
 
 
-  el2_dec_tlu_ctl #(.pt(pt)) tlu (.*);
+  css_mcu0_el2_dec_tlu_ctl #(.pt(pt)) tlu (.*);
 
 
-  el2_dec_gpr_ctl #(
+  css_mcu0_el2_dec_gpr_ctl #(
       .pt(pt)
   ) arf (
       .*,
@@ -448,7 +448,7 @@ module el2_dec
 
   // Trigger
 
-  el2_dec_trigger #(.pt(pt)) dec_trigger (.*);
+  css_mcu0_el2_dec_trigger #(.pt(pt)) dec_trigger (.*);
 
 
 

@@ -14,10 +14,10 @@
 // limitations under the License.
 
 
-module el2_exu
-import el2_pkg::*;
+module css_mcu0_el2_exu
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
 )
   (
    input logic          clk,                                           // Top level clock
@@ -157,22 +157,22 @@ import el2_pkg::*;
 
 
 
-   rvdffpcie #(31)                       i_flush_path_x_ff    (.*, .clk(clk),        .en ( x_data_en     ),  .din ( i0_flush_path_d[31:1]         ),  .dout( i0_flush_path_x[31:1]      ) );
-   rvdffe #(32)                          i_csr_rs1_x_ff       (.*, .clk(clk),        .en ( x_data_en_q1  ),  .din ( i0_rs1_d[31:0]                ),  .dout( exu_csr_rs1_x[31:0]        ) );
-   rvdffppe #($bits(el2_predict_pkt_t)) i_predictpacket_x_ff (.*, .clk(clk),        .en ( x_data_en     ),  .din ( i0_predict_p_d                ),  .dout( i0_predict_p_x             ) );
-   rvdffe #(PREDPIPESIZE)                i_predpipe_x_ff      (.*, .clk(clk),        .en ( x_data_en_q2  ),  .din ( predpipe_d                    ),  .dout( predpipe_x                 ) );
-   rvdffe #(PREDPIPESIZE)                i_predpipe_r_ff      (.*, .clk(clk),        .en ( r_data_en_q2  ),  .din ( predpipe_x                    ),  .dout( predpipe_r                 ) );
+   css_mcu0_rvdffpcie #(31)                       i_flush_path_x_ff    (.*, .clk(clk),        .en ( x_data_en     ),  .din ( i0_flush_path_d[31:1]         ),  .dout( i0_flush_path_x[31:1]      ) );
+   css_mcu0_rvdffe #(32)                          i_csr_rs1_x_ff       (.*, .clk(clk),        .en ( x_data_en_q1  ),  .din ( i0_rs1_d[31:0]                ),  .dout( exu_csr_rs1_x[31:0]        ) );
+   css_mcu0_rvdffppe #($bits(el2_predict_pkt_t)) i_predictpacket_x_ff (.*, .clk(clk),        .en ( x_data_en     ),  .din ( i0_predict_p_d                ),  .dout( i0_predict_p_x             ) );
+   css_mcu0_rvdffe #(PREDPIPESIZE)                i_predpipe_x_ff      (.*, .clk(clk),        .en ( x_data_en_q2  ),  .din ( predpipe_d                    ),  .dout( predpipe_x                 ) );
+   css_mcu0_rvdffe #(PREDPIPESIZE)                i_predpipe_r_ff      (.*, .clk(clk),        .en ( r_data_en_q2  ),  .din ( predpipe_x                    ),  .dout( predpipe_r                 ) );
 
-   rvdffe #(4+pt.BHT_GHR_SIZE)          i_x_ff               (.*, .clk(clk),        .en ( x_ctl_en      ),  .din ({i0_valid_d,i0_taken_d,i0_flush_upper_d,i0_pred_correct_upper_d,ghr_x_ns[pt.BHT_GHR_SIZE-1:0]} ),
+   css_mcu0_rvdffe #(4+pt.BHT_GHR_SIZE)          i_x_ff               (.*, .clk(clk),        .en ( x_ctl_en      ),  .din ({i0_valid_d,i0_taken_d,i0_flush_upper_d,i0_pred_correct_upper_d,ghr_x_ns[pt.BHT_GHR_SIZE-1:0]} ),
                                                                                                             .dout({i0_valid_x,i0_taken_x,i0_flush_upper_x,i0_pred_correct_upper_x,ghr_x[pt.BHT_GHR_SIZE-1:0]}    ) );
 
-   rvdffppe #($bits(el2_predict_pkt_t)+1) i_r_ff0         (.*, .clk(clk),        .en ( r_ctl_en      ),  .din ({i0_pred_correct_upper_x, i0_predict_p_x}),
+   css_mcu0_rvdffppe #($bits(el2_predict_pkt_t)+1) i_r_ff0         (.*, .clk(clk),        .en ( r_ctl_en      ),  .din ({i0_pred_correct_upper_x, i0_predict_p_x}),
                                                                                                           .dout({i0_pred_correct_upper_r, i0_pp_r       }) );
 
-   rvdffpcie #(31)                      i_flush_r_ff         (.*, .clk(clk),        .en ( r_data_en     ),  .din ( i0_flush_path_x[31:1]         ),  .dout( i0_flush_path_upper_r[31:1]) );
-   rvdffpcie #(31)                      i_npc_r_ff           (.*, .clk(clk),        .en ( r_data_en     ),  .din ( pred_correct_npc_x[31:1]      ),  .dout( pred_correct_npc_r[31:1]   ) );
+   css_mcu0_rvdffpcie #(31)                      i_flush_r_ff         (.*, .clk(clk),        .en ( r_data_en     ),  .din ( i0_flush_path_x[31:1]         ),  .dout( i0_flush_path_upper_r[31:1]) );
+   css_mcu0_rvdffpcie #(31)                      i_npc_r_ff           (.*, .clk(clk),        .en ( r_data_en     ),  .din ( pred_correct_npc_x[31:1]      ),  .dout( pred_correct_npc_r[31:1]   ) );
 
-   rvdffie #(pt.BHT_GHR_SIZE+2,1)       i_misc_ff            (.*, .clk(clk),                                .din ({ghr_d_ns[pt.BHT_GHR_SIZE-1:0], mul_p.valid, dec_i0_branch_d}),
+   css_mcu0_rvdffie #(pt.BHT_GHR_SIZE+2,1)       i_misc_ff            (.*, .clk(clk),                                .din ({ghr_d_ns[pt.BHT_GHR_SIZE-1:0], mul_p.valid, dec_i0_branch_d}),
                                                                                                             .dout({ghr_d[pt.BHT_GHR_SIZE-1:0]   , mul_valid_x, i0_branch_x}) );
 
 
@@ -230,7 +230,7 @@ import el2_pkg::*;
 
 
 
-   el2_exu_alu_ctl #(.pt(pt)) i_alu  (.*,
+   css_mcu0_el2_exu_alu_ctl #(.pt(pt)) i_alu  (.*,
                           .enable            ( x_data_en                   ),   // I
                           .pp_in             ( i0_predict_newp_d           ),   // I
                           .valid_in          ( dec_i0_alu_decode_d         ),   // I
@@ -253,7 +253,7 @@ import el2_pkg::*;
 
 
 
-   el2_exu_mul_ctl #(.pt(pt)) i_mul   (.*,
+   css_mcu0_el2_exu_mul_ctl #(.pt(pt)) i_mul   (.*,
                           .mul_p             ( mul_p              & {$bits(el2_mul_pkt_t){mul_p.valid}} ),   // I
                           .rs1_in            ( muldiv_rs1_d[31:0] & {32{mul_p.valid}}                    ),   // I
                           .rs2_in            ( i0_rs2_d[31:0]     & {32{mul_p.valid}}                    ),   // I
@@ -261,7 +261,7 @@ import el2_pkg::*;
 
 
 
-   el2_exu_div_ctl #(.pt(pt)) i_div   (.*,
+   css_mcu0_el2_exu_div_ctl #(.pt(pt)) i_div   (.*,
                           .cancel            ( dec_div_cancel              ),   // I
                           .dp                ( div_p                       ),   // I
                           .dividend          ( muldiv_rs1_d[31:0]          ),   // I

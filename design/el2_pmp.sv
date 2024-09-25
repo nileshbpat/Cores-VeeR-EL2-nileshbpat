@@ -14,14 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module el2_pmp
-  import el2_pkg::*;
+module css_mcu0_el2_pmp
+  import css_mcu0_el2_pkg::*;
 #(
     parameter PMP_CHANNELS = 3,
     // Granularity of NAPOT access,
     // 0 = No restriction, 1 = 8 byte, 2 = 16 byte, 3 = 32 byte, etc.
     parameter PMP_GRANULARITY = 0,  // TODO: Move to veer.config
-    `include "el2_param.vh"
+    `include "css_mcu0_el2_param.vh"
 ) (
     input logic clk,       // Top level clock
     input logic rst_l,     // Reset

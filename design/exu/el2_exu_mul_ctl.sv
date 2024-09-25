@@ -14,10 +14,10 @@
 // limitations under the License.
 
 
-module el2_exu_mul_ctl
-import el2_pkg::*;
+module css_mcu0_el2_exu_mul_ctl
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
    input logic          clk,              // Top level clock
@@ -177,8 +177,8 @@ import el2_pkg::*;
    logic signed [32:0]  rs1_x;
    logic signed [32:0]  rs2_x;
 
-   rvdffe #(34) i_a_x_ff         (.*, .clk(clk),  .din({mul_p.low,rs1_ext_in[32:0]}),        .dout({low_x,rs1_x[32:0]}),                 .en(mul_x_enable));
-   rvdffe #(33) i_b_x_ff         (.*, .clk(clk),  .din(           rs2_ext_in[32:0] ),        .dout(       rs2_x[32:0] ),                 .en(mul_x_enable));
+   css_mcu0_rvdffe #(34) i_a_x_ff         (.*, .clk(clk),  .din({mul_p.low,rs1_ext_in[32:0]}),        .dout({low_x,rs1_x[32:0]}),                 .en(mul_x_enable));
+   css_mcu0_rvdffe #(33) i_b_x_ff         (.*, .clk(clk),  .din(           rs2_ext_in[32:0] ),        .dout(       rs2_x[32:0] ),                 .en(mul_x_enable));
 
 
    assign prod_x[65:0]           =  rs1_x  *  rs2_x;
@@ -723,7 +723,7 @@ import el2_pkg::*;
 
 
 
-   rvdffe #(33) i_bitmanip_ff    (.*, .clk(clk),  .din({bitmanip_sel_d,bitmanip_d[31:0]}),   .dout({bitmanip_sel_x,bitmanip_x[31:0]}),   .en(bit_x_enable));
+   css_mcu0_rvdffe #(33) i_bitmanip_ff    (.*, .clk(clk),  .din({bitmanip_sel_d,bitmanip_d[31:0]}),   .dout({bitmanip_sel_x,bitmanip_x[31:0]}),   .en(bit_x_enable));
 
 
 

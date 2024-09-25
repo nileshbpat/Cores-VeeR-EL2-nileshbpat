@@ -16,10 +16,10 @@
 // limitations under the License.
 //********************************************************************************
 
-module el2_mem
-import el2_pkg::*;
+module css_mcu0_el2_mem
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
 (
    input logic         clk,
@@ -83,16 +83,16 @@ import el2_pkg::*;
    output logic [pt.ICACHE_NUM_WAYS-1:0]   ic_rd_hit,
    output logic         ic_tag_perr,        // Icache Tag parity error
 
-   el2_mem_if.veer_sram_src mem_export,
+   css_mcu0_el2_mem_if.veer_sram_src mem_export,
 
    input  logic         scan_mode
 
 );
 
    logic active_clk;
-   rvoclkhdr active_cg   ( .en(1'b1),         .l1clk(active_clk), .* );
+   css_mcu0_rvoclkhdr active_cg   ( .en(1'b1),         .l1clk(active_clk), .* );
 
-   el2_mem_if mem_export_local ();
+   css_mcu0_el2_mem_if mem_export_local ();
 
    assign mem_export      .clk = clk;
    assign mem_export_local.clk = clk;
@@ -115,7 +115,7 @@ import el2_pkg::*;
 
    // DCCM Instantiation
    if (pt.DCCM_ENABLE == 1) begin: Gen_dccm_enable
-      el2_lsu_dccm_mem #(.pt(pt)) dccm (
+      css_mcu0_el2_lsu_dccm_mem #(.pt(pt)) dccm (
          .clk_override(dccm_clk_override),
          .dccm_mem_export(mem_export_local.veer_dccm),
          .*
@@ -126,7 +126,7 @@ import el2_pkg::*;
    end
 
 if ( pt.ICACHE_ENABLE ) begin: icache
-   el2_ifu_ic_mem #(.pt(pt)) icm  (
+   css_mcu0_el2_ifu_ic_mem #(.pt(pt)) icm  (
       .clk_override(icm_clk_override),
       .*
    );
@@ -143,7 +143,7 @@ end // else: !if( pt.ICACHE_ENABLE )
 
 
 if (pt.ICCM_ENABLE) begin : iccm
-   el2_ifu_iccm_mem  #(.pt(pt)) iccm (.*,
+   css_mcu0_el2_ifu_iccm_mem  #(.pt(pt)) iccm (.*,
                   .clk_override(icm_clk_override),
                   .iccm_rw_addr(iccm_rw_addr[pt.ICCM_BITS-1:1]),
                   .iccm_rd_data(iccm_rd_data[63:0]),

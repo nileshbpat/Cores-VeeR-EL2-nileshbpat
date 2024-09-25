@@ -15,7 +15,7 @@
 // limitations under the License.
 //********************************************************************************
 
-module el2_ifu_tb_memread;
+module css_mcu0_el2_ifu_tb_memread;
 
    logic [15:0] compressed [0:128000]; // vector of compressed instructions
    logic [31:0] expected [0:128000];   // vector of correspoding expected instruction
@@ -78,7 +78,7 @@ module el2_ifu_tb_memread;
    end
 
 
-   el2_ifu_compress_ctl align (.*,.din(compressed_din[15:0]),.dout(actual[31:0]));
+   css_mcu0_el2_ifu_compress_ctl align (.*,.din(compressed_din[15:0]),.dout(actual[31:0]));
 
    assign error = actual[31:0] != expected_val[31:0];
 

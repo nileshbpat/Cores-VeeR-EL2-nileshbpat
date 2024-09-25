@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module el2_dec_ib_ctl
-import el2_pkg::*;
+module css_mcu0_el2_dec_ib_ctl
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
   (
    input logic                 dbg_cmd_valid,                      // valid dbg cmd

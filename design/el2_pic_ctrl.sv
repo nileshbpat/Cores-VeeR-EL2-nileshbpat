@@ -20,10 +20,10 @@
 // Comments:
 //********************************************************************************
 
-module el2_pic_ctrl 
-import el2_pkg::*;
+module css_mcu0_el2_pic_ctrl 
+import css_mcu0_el2_pkg::*;
 #(
-`include "el2_param.vh"
+`include "css_mcu0_el2_param.vh"
  )
                   (
 
@@ -167,11 +167,11 @@ logic [pt.PIC_TOTAL_INT_PLUS1-1:0]                        extintsrc_req_gw;
    assign gw_config_c1_clken  = (waddr_config_gw_base_match   & picm_wren_ff)  | (raddr_config_gw_base_match   & picm_rden_ff) | clk_override;
 
    // C1 - 1 clock pulse for data
-   rvoclkhdr pic_addr_c1_cgc   ( .en(pic_raddr_c1_clken),  .l1clk(pic_raddr_c1_clk), .* );
-   rvoclkhdr pic_data_c1_cgc   ( .en(pic_data_c1_clken),   .l1clk(pic_data_c1_clk), .* );
-   rvoclkhdr pic_pri_c1_cgc    ( .en(pic_pri_c1_clken),    .l1clk(pic_pri_c1_clk),  .* );
-   rvoclkhdr pic_int_c1_cgc    ( .en(pic_int_c1_clken),    .l1clk(pic_int_c1_clk),  .* );
-   rvoclkhdr gw_config_c1_cgc  ( .en(gw_config_c1_clken),  .l1clk(gw_config_c1_clk),  .* );
+   css_mcu0_rvoclkhdr pic_addr_c1_cgc   ( .en(pic_raddr_c1_clken),  .l1clk(pic_raddr_c1_clk), .* );
+   css_mcu0_rvoclkhdr pic_data_c1_cgc   ( .en(pic_data_c1_clken),   .l1clk(pic_data_c1_clk), .* );
+   css_mcu0_rvoclkhdr pic_pri_c1_cgc    ( .en(pic_pri_c1_clken),    .l1clk(pic_pri_c1_clk),  .* );
+   css_mcu0_rvoclkhdr pic_int_c1_cgc    ( .en(pic_int_c1_clken),    .l1clk(pic_int_c1_clk),  .* );
+   css_mcu0_rvoclkhdr gw_config_c1_cgc  ( .en(gw_config_c1_clken),  .l1clk(gw_config_c1_clk),  .* );
 
 // ------ end clock gating section ------------------------
 
@@ -191,14 +191,14 @@ assign waddr_config_gw_base_match   = (picm_waddr_ff[31:NUM_LEVELS+2] == EXT_INT
    assign picm_bypass_ff = picm_rden_ff & picm_wren_ff & ( picm_raddr_ff[31:0] == picm_waddr_ff[31:0] );    // pic writes and reads to same address together
 
 
-rvdff #(32) picm_radd_flop  (.*, .din (picm_rdaddr),        .dout(picm_raddr_ff),         .clk(pic_raddr_c1_clk));
-rvdff #(32) picm_wadd_flop  (.*, .din (picm_wraddr),        .dout(picm_waddr_ff),         .clk(pic_data_c1_clk));
-rvdff  #(1) picm_wre_flop   (.*, .din (picm_wren),          .dout(picm_wren_ff),          .clk(free_clk));
-rvdff  #(1) picm_rde_flop   (.*, .din (picm_rden),          .dout(picm_rden_ff),          .clk(free_clk));
-rvdff  #(1) picm_mke_flop   (.*, .din (picm_mken),          .dout(picm_mken_ff),          .clk(free_clk));
-rvdff #(32) picm_dat_flop   (.*, .din (picm_wr_data[31:0]), .dout(picm_wr_data_ff[31:0]), .clk(pic_data_c1_clk));
+css_mcu0_rvdff #(32) picm_radd_flop  (.*, .din (picm_rdaddr),        .dout(picm_raddr_ff),         .clk(pic_raddr_c1_clk));
+css_mcu0_rvdff #(32) picm_wadd_flop  (.*, .din (picm_wraddr),        .dout(picm_waddr_ff),         .clk(pic_data_c1_clk));
+css_mcu0_rvdff  #(1) picm_wre_flop   (.*, .din (picm_wren),          .dout(picm_wren_ff),          .clk(free_clk));
+css_mcu0_rvdff  #(1) picm_rde_flop   (.*, .din (picm_rden),          .dout(picm_rden_ff),          .clk(free_clk));
+css_mcu0_rvdff  #(1) picm_mke_flop   (.*, .din (picm_mken),          .dout(picm_mken_ff),          .clk(free_clk));
+css_mcu0_rvdff #(32) picm_dat_flop   (.*, .din (picm_wr_data[31:0]), .dout(picm_wr_data_ff[31:0]), .clk(pic_data_c1_clk));
 
-//rvsyncss  #(pt.PIC_TOTAL_INT_PLUS1-1) sync_inst
+//css_mcu0_rvsyncss  #(pt.PIC_TOTAL_INT_PLUS1-1) sync_inst
 //(
 // .clk (free_clk),
 // .dout(extintsrc_req_sync[pt.PIC_TOTAL_INT_PLUS1-1:1]),
@@ -211,10 +211,10 @@ genvar p ;
 for (p=0; p<=INT_ENABLE_GRPS ; p++) begin  : IO_CLK_GRP
    if (p==INT_ENABLE_GRPS) begin : LAST_GRP
        assign intenable_clk_enable_grp[p] = |intenable_clk_enable[pt.PIC_TOTAL_INT_PLUS1-1 : p*4] | io_clk_override;
-       rvoclkhdr intenable_c1_cgc   ( .en(intenable_clk_enable_grp[p]),  .l1clk(gw_clk[p]), .* );
+       css_mcu0_rvoclkhdr intenable_c1_cgc   ( .en(intenable_clk_enable_grp[p]),  .l1clk(gw_clk[p]), .* );
    end else begin :  CLK_GRPS
        assign intenable_clk_enable_grp[p] = |intenable_clk_enable[p*4+3 : p*4] | io_clk_override;
-       rvoclkhdr intenable_c1_cgc   ( .en(intenable_clk_enable_grp[p]),  .l1clk(gw_clk[p]), .* );
+       css_mcu0_rvoclkhdr intenable_c1_cgc   ( .en(intenable_clk_enable_grp[p]),  .l1clk(gw_clk[p]), .* );
    end
 end
 */
@@ -229,13 +229,13 @@ wire grp_clk, grp_clken;
     assign grp_clken = |intenable_clk_enable[(p==INT_ENABLE_GRPS?pt.PIC_TOTAL_INT_PLUS1-1:p*4+3) : p*4] | io_clk_override;
 
   `ifndef RV_FPGA_OPTIMIZE
-    rvclkhdr intenable_c1_cgc( .en(grp_clken),  .l1clk(grp_clk), .* );
+    css_mcu0_rvclkhdr intenable_c1_cgc( .en(grp_clken),  .l1clk(grp_clk), .* );
   `else
     assign gw_clk[p] = 1'b0 ;
   `endif
 
     for(genvar i= (p==0 ? 1: 0); i< (p==INT_ENABLE_GRPS ? pt.PIC_TOTAL_INT_PLUS1-p*4 :4); i++) begin : GW
-        el2_configurable_gw gw_inst(
+        css_mcu0_el2_configurable_gw gw_inst(
              .*,
             .gw_clk(grp_clk),
             .rawclk(clk),
@@ -270,14 +270,14 @@ for (i=0; i<pt.PIC_TOTAL_INT_PLUS1 ; i++) begin  : SETREG
 
      assign gw_clear_reg_we[i]    =  addr_clear_gw_base_match     & (picm_waddr_ff[NUM_LEVELS+1:2] == i) & picm_wren_ff ;
 
-     rvdffs #(INTPRIORITY_BITS) intpriority_ff  (.*, .en( intpriority_reg_we[i]), .din (picm_wr_data_ff[INTPRIORITY_BITS-1:0]), .dout(intpriority_reg[i]), .clk(pic_pri_c1_clk));
-     rvdffs #(1)                 intenable_ff   (.*, .en( intenable_reg_we[i]),   .din (picm_wr_data_ff[0]),                    .dout(intenable_reg[i]),   .clk(pic_int_c1_clk));
-     rvdffs #(2)                 gw_config_ff   (.*, .en( gw_config_reg_we[i]),   .din (picm_wr_data_ff[1:0]),                  .dout(gw_config_reg[i]),   .clk(gw_config_c1_clk));
+     css_mcu0_rvdffs #(INTPRIORITY_BITS) intpriority_ff  (.*, .en( intpriority_reg_we[i]), .din (picm_wr_data_ff[INTPRIORITY_BITS-1:0]), .dout(intpriority_reg[i]), .clk(pic_pri_c1_clk));
+     css_mcu0_rvdffs #(1)                 intenable_ff   (.*, .en( intenable_reg_we[i]),   .din (picm_wr_data_ff[0]),                    .dout(intenable_reg[i]),   .clk(pic_int_c1_clk));
+     css_mcu0_rvdffs #(2)                 gw_config_ff   (.*, .en( gw_config_reg_we[i]),   .din (picm_wr_data_ff[1:0]),                  .dout(gw_config_reg[i]),   .clk(gw_config_c1_clk));
 
      assign intenable_clk_enable[i]  =  gw_config_reg[i][1] | intenable_reg_we[i] | intenable_reg[i] | gw_clear_reg_we[i] ;
 
 /*
-     rvsyncss_fpga  #(1) sync_inst
+     css_mcu0_rvsyncss_fpga  #(1) sync_inst
      (
       .gw_clk      (gw_clk[i/4]),
       .rawclk      (clk),
@@ -290,7 +290,7 @@ for (i=0; i<pt.PIC_TOTAL_INT_PLUS1 ; i++) begin  : SETREG
 
 
 
-        el2_configurable_gw config_gw_inst(.*,
+        css_mcu0_el2_configurable_gw config_gw_inst(.*,
                                             .gw_clk(gw_clk[i/4]),
                                             .rawclk(clk),
                                             .clken (intenable_clk_enable_grp[i/4]),
@@ -359,7 +359,7 @@ if (pt.PIC_2CYCLE == 1) begin : genblock
             assign level_intpend_w_prior_en[l+1][m+1] = '0 ;
             assign level_intpend_id[l+1][m+1]         = '0 ;
        end
-       el2_cmp_and_mux  #(.ID_BITS(ID_BITS),
+       css_mcu0_el2_cmp_and_mux  #(.ID_BITS(ID_BITS),
                       .INTPRIORITY_BITS(INTPRIORITY_BITS)) cmp_l1 (
                       .a_id(level_intpend_id[l][2*m]),
                       .a_priority(level_intpend_w_prior_en[l][2*m]),
@@ -372,8 +372,8 @@ if (pt.PIC_2CYCLE == 1) begin : genblock
  end
 
         for (i=0; i<=pt.PIC_TOTAL_INT_PLUS1/2**(NUM_LEVELS/2) ; i++) begin : MIDDLE_FLOPS
-          rvdff #(INTPRIORITY_BITS) level2_intpend_prior_reg  (.*, .din (level_intpend_w_prior_en[NUM_LEVELS/2][i]), .dout(l2_intpend_w_prior_en_ff[i]),  .clk(free_clk));
-          rvdff #(ID_BITS)          level2_intpend_id_reg     (.*, .din (level_intpend_id[NUM_LEVELS/2][i]),         .dout(l2_intpend_id_ff[i]),          .clk(free_clk));
+          css_mcu0_rvdff #(INTPRIORITY_BITS) level2_intpend_prior_reg  (.*, .din (level_intpend_w_prior_en[NUM_LEVELS/2][i]), .dout(l2_intpend_w_prior_en_ff[i]),  .clk(free_clk));
+          css_mcu0_rvdff #(ID_BITS)          level2_intpend_id_reg     (.*, .din (level_intpend_id[NUM_LEVELS/2][i]),         .dout(l2_intpend_id_ff[i]),          .clk(free_clk));
         end
 
  for (j=NUM_LEVELS/2; j<NUM_LEVELS ; j++) begin : BOT_LEVELS
@@ -382,7 +382,7 @@ if (pt.PIC_2CYCLE == 1) begin : genblock
             assign levelx_intpend_w_prior_en[j+1][k+1] = '0 ;
             assign levelx_intpend_id[j+1][k+1]         = '0 ;
        end
-            el2_cmp_and_mux  #(.ID_BITS(ID_BITS),
+            css_mcu0_el2_cmp_and_mux  #(.ID_BITS(ID_BITS),
                         .INTPRIORITY_BITS(INTPRIORITY_BITS))
                  cmp_l1 (
                         .a_id(levelx_intpend_id[j][2*k]),
@@ -412,7 +412,7 @@ else begin : genblock
             assign level_intpend_w_prior_en[l+1][m+1] = '0 ;
             assign level_intpend_id[l+1][m+1]         = '0 ;
        end
-       el2_cmp_and_mux  #(.ID_BITS(ID_BITS),
+       css_mcu0_el2_cmp_and_mux  #(.ID_BITS(ID_BITS),
                       .INTPRIORITY_BITS(INTPRIORITY_BITS)) cmp_l1 (
                       .a_id(level_intpend_id[l][2*m]),
                       .a_priority(level_intpend_w_prior_en[l][2*m]),
@@ -437,7 +437,7 @@ assign config_reg_we               =  waddr_config_pic_match & picm_wren_ff;
 assign config_reg_re               =  raddr_config_pic_match & picm_rden_ff;
 
 assign config_reg_in  =  picm_wr_data_ff[0] ;   //
-rvdffs #(1) config_reg_ff  (.*, .clk(free_clk), .en(config_reg_we), .din (config_reg_in), .dout(config_reg));
+css_mcu0_rvdffs #(1) config_reg_ff  (.*, .clk(free_clk), .en(config_reg_we), .din (config_reg_in), .dout(config_reg));
 
 assign intpriord  = config_reg ;
 
@@ -451,19 +451,19 @@ assign intpriord  = config_reg ;
 ///////////////////////////////////////////////////////////
 //
 assign pl_in_q[INTPRIORITY_BITS-1:0] = intpriord ? ~pl_in : pl_in ;
-rvdff #(ID_BITS)          claimid_ff  (.*,  .din (claimid_in[ID_BITS-1:00]),     .dout(claimid[ID_BITS-1:00]),    .clk(free_clk));
-rvdff  #(INTPRIORITY_BITS) pl_ff      (.*, .din (pl_in_q[INTPRIORITY_BITS-1:0]), .dout(pl[INTPRIORITY_BITS-1:0]), .clk(free_clk));
+css_mcu0_rvdff #(ID_BITS)          claimid_ff  (.*,  .din (claimid_in[ID_BITS-1:00]),     .dout(claimid[ID_BITS-1:00]),    .clk(free_clk));
+css_mcu0_rvdff  #(INTPRIORITY_BITS) pl_ff      (.*, .din (pl_in_q[INTPRIORITY_BITS-1:0]), .dout(pl[INTPRIORITY_BITS-1:0]), .clk(free_clk));
 
 logic [INTPRIORITY_BITS-1:0] meipt_inv , meicurpl_inv ;
 assign meipt_inv[INTPRIORITY_BITS-1:0]    = intpriord ? ~meipt[INTPRIORITY_BITS-1:0]    : meipt[INTPRIORITY_BITS-1:0] ;
 assign meicurpl_inv[INTPRIORITY_BITS-1:0] = intpriord ? ~meicurpl[INTPRIORITY_BITS-1:0] : meicurpl[INTPRIORITY_BITS-1:0] ;
 assign mexintpend_in = (( selected_int_priority[INTPRIORITY_BITS-1:0] > meipt_inv[INTPRIORITY_BITS-1:0]) &
                         ( selected_int_priority[INTPRIORITY_BITS-1:0] > meicurpl_inv[INTPRIORITY_BITS-1:0]) );
-rvdff #(1) mexintpend_ff  (.*, .clk(free_clk), .din (mexintpend_in), .dout(mexintpend));
+css_mcu0_rvdff #(1) mexintpend_ff  (.*, .clk(free_clk), .din (mexintpend_in), .dout(mexintpend));
 
 assign maxint[INTPRIORITY_BITS-1:0]      =  intpriord ? 0 : 15 ;
 assign mhwakeup_in = ( pl_in_q[INTPRIORITY_BITS-1:0] == maxint) ;
-rvdff #(1) wake_up_ff  (.*, .clk(free_clk), .din (mhwakeup_in), .dout(mhwakeup));
+css_mcu0_rvdff #(1) wake_up_ff  (.*, .clk(free_clk), .din (mhwakeup_in), .dout(mhwakeup));
 
 
 
@@ -532,7 +532,7 @@ assign address[14:0] = picm_raddr_ff[14:0];
 endmodule
 
 
-module el2_cmp_and_mux #(parameter ID_BITS=8,
+module css_mcu0_el2_cmp_and_mux #(parameter ID_BITS=8,
                                INTPRIORITY_BITS = 4)
                     (
                         input  logic [ID_BITS-1:0]       a_id,
@@ -557,7 +557,7 @@ assign  out_priority[INTPRIORITY_BITS-1:0] = a_is_lt_b ? b_priority[INTPRIORITY_
 endmodule // cmp_and_mux
 
 
-module el2_configurable_gw (
+module css_mcu0_el2_configurable_gw (
                              input logic gw_clk,
                              input logic rawclk,
                              input logic clken,
@@ -573,14 +573,14 @@ module el2_configurable_gw (
 
   logic  gw_int_pending_in, gw_int_pending, extintsrc_req_sync;
 
-  rvsyncss_fpga  #(1) sync_inst (
+  css_mcu0_rvsyncss_fpga  #(1) sync_inst (
       .dout        (extintsrc_req_sync),
       .din         (extintsrc_req),
       .*) ;
 
 
   assign gw_int_pending_in =  (extintsrc_req_sync ^ meigwctrl_polarity) | (gw_int_pending & ~meigwclr) ;
-  rvdff_fpga #(1) int_pend_ff        (.*, .clk(gw_clk), .rawclk(rawclk), .clken(clken), .din (gw_int_pending_in),     .dout(gw_int_pending));
+  css_mcu0_rvdff_fpga #(1) int_pend_ff        (.*, .clk(gw_clk), .rawclk(rawclk), .clken(clken), .din (gw_int_pending_in),     .dout(gw_int_pending));
 
 
   assign extintsrc_req_config =  meigwctrl_type ? ((extintsrc_req_sync ^  meigwctrl_polarity) | gw_int_pending) : (extintsrc_req_sync ^  meigwctrl_polarity) ;
